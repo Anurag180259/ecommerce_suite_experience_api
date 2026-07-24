@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_babc7fde_1c08_4c7b_9dfb_f5d5f2094f59_Output_Variables_jwtClaims = Any
+
