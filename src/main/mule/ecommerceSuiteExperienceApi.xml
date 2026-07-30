@@ -459,12 +459,113 @@ output application/json
         </error-handler>
     </flow>
     <flow name="delete:\products\(productId):ecommerceSuiteExperienceApi-config">
-        <ee:transform doc:name="Transform Message">
-            <ee:variables>
-                <ee:set-variable variableName="productId">attributes.uriParams.'productId'</ee:set-variable>
-            </ee:variables>
-        </ee:transform>
-        <logger level="INFO" message="delete:\products\(productId):ecommerceSuiteExperienceApi-config" />
+        <logger level="INFO" message='#["Request to delete productId:" ++ attributes.uriParams.productId ++ " received. calling process api"]' />
+		<set-variable value='#["seller"]' doc:name="allowedRole" doc:id="bb4572ac-949a-460e-bdc6-a847c0b96988" variableName="allowedRole"/>
+		<flow-ref doc:name="jwtExtraction" doc:id="1ff158c0-ef1d-4b59-8145-c52712faed49" name="jwtExtraction"/>
+		<http:request method="DELETE" doc:name="DELETE/process/product/{productId}" doc:id="c566ef90-75eb-4701-9ba0-926627f27779" config-ref="HTTP_Request_configuration" path="/products/{productId}">
+			<http:body ><![CDATA[#[null]]]></http:body>
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"x-user-id" : vars.jwtClaims.userId
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"productId" : attributes.uriParams.productId
+}]]]></http:uri-params>
+		</http:request>
+		<choice doc:name="Choice" doc:id="9404df76-4a43-4183-8dc8-af45f044ec5b" >
+			<when expression="#[payload == 0]">
+				<ee:transform doc:name="Transform Message" doc:id="08efc751-181b-4190-9ba7-0e06e59070d0" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message:"The deletion operation is not performed due to some unexpected internal server error."
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[500]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="14be5021-b47b-47de-8fb2-ccc56f04da90" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message:"Product successfully deleted."
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="9035a8a3-6e9c-4a5c-92e3-433da1ff18f1" type="APP:UNAUTHORIZED" >
+				<ee:transform doc:name="Transform Message" doc:id="9d205db7-ce0e-4829-ae97-8d34c47da721" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message:"Please provide a valid JWT token"
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[401]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate1" doc:id="c0c29c06-d5f6-4f78-a1a5-35905c0cc073" type="APP:FORBIDDEN" >
+				<ee:transform doc:name="Transform Message" doc:id="a9372eda-5efc-4d97-ac5e-cd66caab027a" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message:"You are not allowed to access this request. Role required = buyer"
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[403]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate2" doc:id="72c6f459-63b5-46eb-ae0a-99e6be4f5b48" when="#[error.errorMessage.attributes.statusCode == 403]" >
+				<ee:transform doc:name="Transform Message" doc:id="a92bac04-27c5-4a7e-9a48-4c1ee06af79e" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message:"You are not allowed to delete this product"
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[403]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate3" doc:id="d2e72af7-9ae2-452a-9c9d-38555cf01a1c" when="#[error.errorMessage.attributes.statusCode == 404]" >
+				<ee:transform doc:name="Transform Message" doc:id="53539eee-1045-451c-a39b-2bac2ee7db89" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message:"Requested resource not found"
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[404]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
     </flow>
     <flow name="patch:\products\(productId)\restock:application\json:ecommerceSuiteExperienceApi-config">
         <logger level="INFO" message="#[&quot;Restocking request received for productId:&quot; ++ attributes.uriParams.productId]" />
