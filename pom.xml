@@ -64,7 +64,7 @@
 		<dependency>
 			<groupId>297e1185-2a7e-4734-9d69-effb0bb9fbe9</groupId>
 			<artifactId>ecommerce_suite_experience_api</artifactId>
-			<version>1.0.9</version>
+			<version>1.0.13</version>
 			<classifier>raml</classifier>
 			<type>zip</type>
 		</dependency>
