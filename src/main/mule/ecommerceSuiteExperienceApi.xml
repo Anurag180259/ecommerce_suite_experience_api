@@ -3,7 +3,7 @@
     <http:listener-config name="ecommerceSuiteExperienceApi-httpListenerConfig">
         <http:listener-connection host="0.0.0.0" port="8081" />
     </http:listener-config>
-    <apikit:config name="ecommerceSuiteExperienceApi-config" api="resource::297e1185-2a7e-4734-9d69-effb0bb9fbe9:ecommerce_suite_experience_api:1.0.13:raml:zip:ecommerceSuiteExperienceApi.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <apikit:config name="ecommerceSuiteExperienceApi-config" api="resource::297e1185-2a7e-4734-9d69-effb0bb9fbe9:ecommerce_suite_experience_api:1.0.18:raml:zip:ecommerceSuiteExperienceApi.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
     <http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="6e7c2511-ac89-4259-b1fd-07084090d004" basePath="/process">
         <http:request-connection host="localhost" port="8082" />
     </http:request-config>
@@ -784,133 +784,136 @@ output application/json
         </error-handler>
     </flow>
     <flow name="delete:\carts:ecommerceSuiteExperienceApi-config">
-        <logger level="INFO" message="delete:\carts:ecommerceSuiteExperienceApi-config" />
-    </flow>
-    <flow name="patch:\carts\(cartItemId)\quantity:application\json:ecommerceSuiteExperienceApi-config">
-        <logger level="INFO" message='#["Quantity update request received for cartItemId:" ++ attributes.uriParams.cartItemId]' />
-		<set-variable value="#[attributes.uriParams.cartItemId]" doc:name="cartItemId" doc:id="82cfb602-f75a-4f24-bd6e-69b493b2cfe2" variableName="cartItemId"/>
-		<set-variable value='#["buyer"]' doc:name="allowedRole" doc:id="67e035c1-5bdb-487c-a903-65f6238d1c61" variableName="allowedRole"/>
-		<flow-ref doc:name="jwtExtraction" doc:id="d814e6d4-3470-49e8-8616-f008ff0e206a" name="jwtExtraction"/>
-		<http:request method="PATCH" doc:name="PATCH/process/carts/{cartItemId}/quantity" doc:id="437c9ed4-b82d-469d-89ba-1b1ff5a7716a" config-ref="HTTP_Request_configuration" path="/carts/{cartItemId}/quantity">
-			<http:headers ><![CDATA[#[output application/java
+        <logger level="INFO" message="#[&quot;Request received to delete all items in the carts&quot;]" />
+        <set-variable value="#[&quot;buyer&quot;]" doc:name="allowedRole" doc:id="9a61feb1-2833-4489-bc7e-c8444bc9bb7c" variableName="allowedRole" />
+        <flow-ref doc:name="jwtExtraction" doc:id="d3977e46-f64e-4437-92c9-8f30c6c1dfbc" name="jwtExtraction" />
+        <http:request method="DELETE" doc:name="DELETE/process/carts" doc:id="be366059-d41a-4ce8-a097-21e3e2454b8a" config-ref="HTTP_Request_configuration" path="/carts" target="temp">
+            <http:body><![CDATA[#[null]]]></http:body>
+            <http:headers><![CDATA[#[output application/java
 ---
 {
 	"x-user-id" : vars.jwtClaims.userId
 }]]]></http:headers>
-			<http:uri-params ><![CDATA[#[output application/java
+        </http:request>
+        <ee:transform doc:name="Transform Message" doc:id="fbe6a037-a447-4ee6-b4cd-dbdabdfb23cc">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message:"Your cart is empty now",
+	userId:vars.jwtClaims.userId
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="patch:\carts\(cartItemId)\quantity:application\json:ecommerceSuiteExperienceApi-config">
+        <logger level="INFO" message="#[&quot;Quantity update request received for cartItemId:&quot; ++ attributes.uriParams.cartItemId]" />
+        <set-variable value="#[attributes.uriParams.cartItemId]" doc:name="cartItemId" doc:id="82cfb602-f75a-4f24-bd6e-69b493b2cfe2" variableName="cartItemId" />
+        <set-variable value="#[&quot;buyer&quot;]" doc:name="allowedRole" doc:id="67e035c1-5bdb-487c-a903-65f6238d1c61" variableName="allowedRole" />
+        <flow-ref doc:name="jwtExtraction" doc:id="d814e6d4-3470-49e8-8616-f008ff0e206a" name="jwtExtraction" />
+        <http:request method="PATCH" doc:name="PATCH/process/carts/{cartItemId}/quantity" doc:id="437c9ed4-b82d-469d-89ba-1b1ff5a7716a" config-ref="HTTP_Request_configuration" path="/carts/{cartItemId}/quantity" target="temp">
+            <http:headers><![CDATA[#[output application/java
+---
+{
+	"x-user-id" : vars.jwtClaims.userId
+}]]]></http:headers>
+            <http:uri-params><![CDATA[#[output application/java
 ---
 {
 	"cartItemId" : attributes.uriParams.cartItemId
 }]]]></http:uri-params>
-		</http:request>
-		<choice doc:name="Choice" doc:id="26f16896-3220-4068-bcea-a07912bb687e" >
-			<when expression="#[payload.affectedRows == 0]">
-				<ee:transform doc:name="Transform Message" doc:id="4905ccff-277f-4798-9942-4e260650042c" >
-					<ee:message >
-						<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
----
-{
-	message:"The quantity is not updated due to some unexpected internal server error"
-}]]></ee:set-payload>
-					</ee:message>
-					<ee:variables >
-						<ee:set-variable variableName="httpStatus" ><![CDATA[500]]></ee:set-variable>
-					</ee:variables>
-				</ee:transform>
-			</when>
-			<otherwise >
-				<ee:transform doc:name="Transform Message" doc:id="fe4388ff-9115-47cd-a90a-2d735553a4ba" >
-					<ee:message >
-						<ee:set-payload ><![CDATA[%dw 2.0
+        </http:request>
+        <ee:transform doc:name="Transform Message" doc:id="fe4388ff-9115-47cd-a90a-2d735553a4ba">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {
 	message:"Quantity successfully updated",
-	cartItemId:vars.cartItemId
+	cartItemId:vars.cartItemId,
+	finalQuantity:payload.quantity
 }]]></ee:set-payload>
-					</ee:message>
-				</ee:transform>
-			</otherwise>
-		</choice>
-		<error-handler >
-			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="daeb4881-b71b-4530-94f7-9ebf2a819ef1" when="#[error.errorMessage.attributes.statusCode == 403]">
-				<ee:transform doc:name="Transform Message" doc:id="fa8cd610-cc71-40e7-96e0-b637fea99b5d" >
-					<ee:message >
-						<ee:set-payload ><![CDATA[%dw 2.0
+            </ee:message>
+        </ee:transform>
+        <error-handler>
+            <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="daeb4881-b71b-4530-94f7-9ebf2a819ef1" when="#[error.errorMessage.attributes.statusCode == 403]">
+                <ee:transform doc:name="Transform Message" doc:id="fa8cd610-cc71-40e7-96e0-b637fea99b5d">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {
 	message:"You are not allowed to access this resource"
 }]]></ee:set-payload>
-					</ee:message>
-					<ee:variables >
-						<ee:set-variable variableName="httpStatus" ><![CDATA[403]]></ee:set-variable>
-					</ee:variables>
-				</ee:transform>
-			</on-error-propagate>
-			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="5387e1d8-0d4a-4bec-9147-9f16ca41792f" when="#[error.errorMessage.attributes.statusCode == 404]">
-				<ee:transform doc:name="Transform Message" doc:id="a0d908ab-50f8-4009-9fdd-138557a904f5" >
-					<ee:message >
-						<ee:set-payload ><![CDATA[%dw 2.0
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[403]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="5387e1d8-0d4a-4bec-9147-9f16ca41792f" when="#[error.errorMessage.attributes.statusCode == 404]">
+                <ee:transform doc:name="Transform Message" doc:id="a0d908ab-50f8-4009-9fdd-138557a904f5">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {
 	message:"Requested resource not found"
 }]]></ee:set-payload>
-					</ee:message>
-					<ee:variables >
-						<ee:set-variable variableName="httpStatus" ><![CDATA[404]]></ee:set-variable>
-					</ee:variables>
-				</ee:transform>
-			</on-error-propagate>
-			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate1" doc:id="aa6e73cd-c2ae-4950-b968-af51c9da1b06" type="APP:UNAUTHORIZED" >
-				<ee:transform doc:name="Transform Message" doc:id="fa3094a6-63cd-4b2b-abc5-b0fb7ad78656" >
-					<ee:message >
-						<ee:set-payload ><![CDATA[%dw 2.0
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[404]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate1" doc:id="aa6e73cd-c2ae-4950-b968-af51c9da1b06" type="APP:UNAUTHORIZED">
+                <ee:transform doc:name="Transform Message" doc:id="fa3094a6-63cd-4b2b-abc5-b0fb7ad78656">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {
 	message:"Please provide a valid JWT token"
 }]]></ee:set-payload>
-					</ee:message>
-					<ee:variables >
-						<ee:set-variable variableName="httpStatus" ><![CDATA[401]]></ee:set-variable>
-					</ee:variables>
-				</ee:transform>
-			</on-error-propagate>
-			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate2" doc:id="fc5886b5-2919-4b96-85ab-019831282057" type="APP:FORBIDDEN" >
-				<ee:transform doc:name="Transform Message" doc:id="69bf657e-11b9-4aa5-bfeb-7ec81722a283" >
-					<ee:message >
-						<ee:set-payload ><![CDATA[%dw 2.0
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[401]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate2" doc:id="fc5886b5-2919-4b96-85ab-019831282057" type="APP:FORBIDDEN">
+                <ee:transform doc:name="Transform Message" doc:id="69bf657e-11b9-4aa5-bfeb-7ec81722a283">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {
-	message:"Your required role needs to be buyer to access this request"
+	message:"Please login with your buyer account to access this request"
 }]]></ee:set-payload>
-					</ee:message>
-					<ee:variables >
-						<ee:set-variable variableName="httpStatus" ><![CDATA[403]]></ee:set-variable>
-					</ee:variables>
-				</ee:transform>
-			</on-error-propagate>
-		</error-handler>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[403]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
     </flow>
     <flow name="get:\carts:ecommerceSuiteExperienceApi-config">
         <logger level="INFO" message="#[&quot;Request received to get cart items&quot;]" />
-        <set-variable value='#["buyer"]' doc:name="allowedRole" doc:id="266ffbc6-d799-4c74-9840-e6d2b8f984ec" variableName="allowedRole"/>
-		<flow-ref doc:name="jwtExtraction" doc:id="a9c4df8c-8896-46b2-be29-32ca640e8a83" name="jwtExtraction" />
-		<http:request method="GET" doc:name="GET/process/carts" doc:id="350f5180-53e7-4ed1-980f-16c9f137aa68" config-ref="HTTP_Request_configuration" path="/carts">
-			<http:body ><![CDATA[#[null]]]></http:body>
-			<http:headers ><![CDATA[#[output application/java
+        <set-variable value="#[&quot;buyer&quot;]" doc:name="allowedRole" doc:id="266ffbc6-d799-4c74-9840-e6d2b8f984ec" variableName="allowedRole" />
+        <flow-ref doc:name="jwtExtraction" doc:id="a9c4df8c-8896-46b2-be29-32ca640e8a83" name="jwtExtraction" />
+        <http:request method="GET" doc:name="GET/process/carts" doc:id="350f5180-53e7-4ed1-980f-16c9f137aa68" config-ref="HTTP_Request_configuration" path="/carts">
+            <http:body><![CDATA[#[null]]]></http:body>
+            <http:headers><![CDATA[#[output application/java
 ---
 {
 	"x-user-id" : vars.jwtClaims.userId
 }]]]></http:headers>
-		</http:request>
-		<ee:transform doc:name="Transform Message" doc:id="231395f6-9c32-48e8-94b3-7aa4bbf0ae42" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
+        </http:request>
+        <ee:transform doc:name="Transform Message" doc:id="231395f6-9c32-48e8-94b3-7aa4bbf0ae42">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
 output application/json
 var mappedProducts=payload.productDetails map (prod) -> do{
 		var cartData = (payload.cart filter($.productId == prod.productId))[0]
@@ -924,8 +927,8 @@ var mappedProducts=payload.productDetails map (prod) -> do{
 	products:mappedProducts,
 	totalCartValue: sum(mappedProducts map($.inCartQuantity*$.price))
 }]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
+            </ee:message>
+        </ee:transform>
     </flow>
     <flow name="post:\carts:application\json:ecommerceSuiteExperienceApi-config">
         <logger level="INFO" message="#[&quot;Request received to add product to cart. calling process api&quot;]" />
@@ -966,5 +969,42 @@ output application/json
                 </ee:transform>
             </otherwise>
         </choice>
+    </flow>
+    <flow name="delete:\carts\(cartItemId):ecommerceSuiteExperienceApi-config">
+        <ee:transform doc:name="Transform Message">
+            <ee:variables>
+                <ee:set-variable variableName="cartItemId">attributes.uriParams.'cartItemId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <logger level="INFO" message="#[&quot;Request received to remove item from the cart cartItemId:&quot; ++ attributes.uriParams.cartItemId]" />
+        <set-variable value="#[&quot;buyer&quot;]" doc:name="allowedRole" doc:id="aeeafe56-7a59-4df5-a046-753d1db33d8d" variableName="allowedRole" />
+        <flow-ref doc:name="jwtExtraction" doc:id="3d7fa424-6bbb-491e-ab81-d07c0974a880" name="jwtExtraction" />
+        <http:request method="DELETE" doc:name="DELETE/process/carts/{cartItemId}" doc:id="368543a2-4149-4227-9f04-d540cf0b9958" config-ref="HTTP_Request_configuration" path="/carts/{cartItemId}">
+            <http:body><![CDATA[#[null]]]></http:body>
+            <http:headers><![CDATA[#[output application/java
+---
+{
+	"x-user-id" : vars.jwtClaims.userId
+}]]]></http:headers>
+            <http:uri-params><![CDATA[#[output application/java
+---
+{
+	"cartItemId" : attributes.uriParams.cartItemId
+}]]]></http:uri-params>
+        </http:request>
+        <ee:transform doc:name="Transform Message" doc:id="636f4fb3-2331-4dca-99df-653720e6fee9">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message:"Product removed from the cart",
+	cartItemId:vars.cartItemId
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\orders:application\json:ecommerceSuiteExperienceApi-config">
+        <logger level="INFO" message="post:\orders:application\json:ecommerceSuiteExperienceApi-config" />
     </flow>
 </mule>

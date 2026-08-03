@@ -30,7 +30,8 @@ output application/json
 output application/json
 ---
 {
-	message:"You are not allowed to access this resource"
+	message:"You are not allowed to access this resource",
+	info:"Wrong Role"
 }]]></ee:set-payload>
 				</ee:message>
 				<ee:variables >
@@ -40,6 +41,36 @@ output application/java
 403]]></ee:set-variable>
 				</ee:variables>
 			</ee:transform>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="d658af13-c039-4f5c-802c-0a400be414c4" when="#[error.errorMessage.attributes.statusCode == 403]">
+			<ee:transform doc:name="Transform Message" doc:id="92b2c663-e295-44f8-bc54-89988e4561b7" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	Message:"You are not allowed to access this resource"
+}]]></ee:set-payload>
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="httpStatus" ><![CDATA[403]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="4c09f67e-b3de-42e2-bfab-d137856c3df1" when="#[error.errorMessage.attributes.statusCode == 404]">
+			<ee:transform doc:name="Transform Message" doc:id="44cefa7a-733b-4604-a2c8-6ae09876d90e">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message:"Requested resource not found"
+}]]></ee:set-payload>
+			</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="httpStatus" ><![CDATA[404]]></ee:set-variable>
+				</ee:variables>
+		</ee:transform>
 		</on-error-propagate>
 	</error-handler>
 </mule>
