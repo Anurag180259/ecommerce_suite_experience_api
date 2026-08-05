@@ -1,0 +1,118 @@
+#%RAML 1.0
+title: ecommerceSuiteExperienceApi2
+
+uses:
+  library: fragments/library.raml
+  response: fragments/exampleResponses.raml
+
+/auth:
+  /register:
+    post:
+      body:
+        application/json:
+          library.authRegisterRequestBody
+      responses:
+        201:
+          body:
+            application/json:
+              response.authRegisterResponse201
+  /login:
+    post:
+      body:
+        application/json:
+          library.authLoginRequestBody
+      responses:
+        200:
+          body:
+            application/json:
+              response.authLoginResponse200
+
+/stores:
+  post:
+    securedBy: [library.jwt]
+    body:
+      application/json:
+        library.storesRequestBody
+  /{storeId}:
+    /verification:
+      patch:
+        securedBy: [library.jwt]
+        body:
+          application/json:
+            properties:
+              status:
+                required: true
+                type: string
+                enum: [verified, unverified, rejected]
+    /products:
+      post:
+        securedBy: [library.jwt]
+        body:
+          application/json:
+              library.postProductRequestBody
+      get:
+
+/products:
+  get:
+    is: [library.getProductsByFilters]
+  /{productId}:
+    get:
+    patch:
+      securedBy: [library.jwt]
+      body:
+        application/json:
+          library.patchProductRequestBody
+    delete:
+      securedBy: [library.jwt]
+    /restock:
+      patch:
+        securedBy: [library.jwt]
+        body:
+          application/json:
+            properties:
+              quantity:
+                required: true
+                type: number
+                minimum: 1
+
+        
+
+/admin:
+  /setup:
+    post:
+      body:
+        application/json:
+          library.adminSetupRequestBody
+
+/carts:
+  post:
+    securedBy: [library.jwt]
+    body:
+      application/json:
+        library.postCartRequestBody
+  get:
+    securedBy: [library.jwt]
+  delete:
+    securedBy: [library.jwt]
+  /{cartItemId}:
+    delete:
+      securedBy: [library.jwt]
+    /quantity:
+      patch:
+        securedBy: [library.jwt]
+        body:
+          application/json:
+            properties:
+              quantity:
+                required: true
+                type: number
+                minimum: 1
+        description: User will provide absolute value to be set as quantity in item in the cart
+
+/orders:
+  post:
+    securedBy: [library.jwt]
+    body:
+      application/json:
+        library.postOrderRequestBody
+              
