@@ -1,0 +1,8 @@
+%dw 2.0
+import * from dw::test::Asserts
+---
+payload must equalTo({
+  "message": "Login Successful",
+  "jwt": "eyJhbGciOiAiSFMyNTYiLCJ0eXAiOiAiSldUIn0.eyJ1c2VySWQiOiAiQS0yNzgwZDUiLCJpc3MiOiAiZWNvbW1lcmNlX3N1aXRlX2JhY2tlbmQiLCJhdWQiOiAiZWNvbW1lcmNlX2FwaSIsImlhdCI6IDE3ODYxOTk0NjUsImV4cCI6IDE3ODYyMDMwNjUsInJvbGUiOiAiYWRtaW4ifQ.3haaJ8WlGyuCH7r0LCCx_dsFoFIJOqTvCc19B84MoSA",
+  "userId": "A-2780d5"
+})

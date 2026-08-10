@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<munit:config name="ecommerceSuiteExperienceApi-suite.xml" />
+	<http:listener-config name="HTTP_Listener_config_munit" doc:name="HTTP Listener config" doc:id="678d7d65-da6a-43d6-b0a6-de2d685f3bbb" >
+		<http:listener-connection host="0.0.0.0" port="8085" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration1" doc:name="HTTP Request configuration" doc:id="7871bf95-e218-45c0-9899-18e5f004d788">
+		<http:request-connection host="localhost" port="8085" />
+	</http:request-config>
+	<munit:test name="post:\auth\login_happyPath" doc:id="5aa62f35-622c-40fc-801e-dde8a1b4d876" ignore="true">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock /process/auth/login" doc:id="f46c224a-e5c7-4075-8596-a94e0d6bbf19" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="8c15ba27-201e-403d-b693-c73f35f2f573" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://postauthloginhappyPath\mock_payload.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://postauthloginhappyPath\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://postauthloginhappyPath\mock_variable_.dwl')]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="8a672c95-6946-4459-a74c-81f60852a6f4" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://postauthloginhappyPath\set-event_payload1.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://postauthloginhappyPath\set-event_attributes1.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://postauthloginhappyPath\set-event_variable_1.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to post:\auth\login:application\json:ecommerceSuiteExperienceApi-config" doc:id="d770fbd3-9dc8-43ea-bef5-3230f9884f58" name="post:\auth\login:application\json:ecommerceSuiteExperienceApi-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="ee6ee670-76a5-49eb-814a-8b1e9ce3c239" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import postauthloginhappyPath::assert_expression_payload1
+---
+assert_expression_payload1::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="post:\process\auth\login_emailNotFound" doc:id="3dce5979-65b1-4bb5-9174-c898a4b1e5da" ignore="true">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock/process/auth/login" doc:id="5112fbae-ddf0-4c5f-9848-9894fc36aed9" processor="http:request">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="8c15ba27-201e-403d-b693-c73f35f2f573" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:NOT_FOUND" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="867578ce-1dd9-4e69-bc5f-1577bfb12b37">
+				<munit:payload value='#[{&#10;  "email":"anuragninawe@gmail.com",&#10;  "password":"anurag"&#10;}]' />
+			</munit:set-event>
+			<flow-ref doc:name="post:\auth\login:application\json:ecommerceSuiteExperienceApi-config" doc:id="cc1b9377-87e7-48c6-b7db-2baf92232668" name="post:\auth\login:application\json:ecommerceSuiteExperienceApi-config" />
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-that doc:name="payload" doc:id="837ecb39-b1f0-4d37-8020-ba218e8693b0" expression="#[payload]" is='#[MunitTools::equalTo({&#10;	message:"PROVIDE CORRECT EMAIL"&#10;})]'/>
+			<munit-tools:assert-equals doc:name="httpStatus" doc:id="a4869bc7-235e-4237-b874-36d19f67b0f5" actual="#[vars.httpStatus]" expected="404"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="post:\process\auth\login_passwordMismatch" doc:id="40999d83-720d-45ed-b5e8-f3326e889df1" ignore="true">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock/process/auth/login" doc:id="ac8cf7fa-92c2-4921-91d4-24d2f04e944b" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="8c15ba27-201e-403d-b693-c73f35f2f573" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:UNAUTHORIZED" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="14c29b0b-fd08-4330-a2af-520549392000" >
+				<munit:payload value='#[{&#10;  "email":"anuragninave@gmail.com",&#10;  "password":"anu"&#10;}]' />
+			</munit:set-event>
+			<flow-ref doc:name="post:\auth\login:application\json:ecommerceSuiteExperienceApi-config" doc:id="a916a276-5bea-40a8-a322-4143379db548" name="post:\auth\login:application\json:ecommerceSuiteExperienceApi-config" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Payload" doc:id="da1c9a7b-5f8d-47a4-b3eb-6b95ae9a9689" >
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import * from dw::test::Asserts
+output application/json
+---
+payload must equalTo({
+	message:"PROVIDE CORRECT PASSWORD"
+})]]]></munit-tools:that>
+			</munit-tools:assert>
+			<munit-tools:assert-equals doc:name="httpStatus" doc:id="60597583-3506-4ca7-8031-7b8cb1b779c0" actual="#[vars.httpStatus]" expected="401"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="post:\auth\register_happyPath" doc:id="3e991ba5-1d39-48c8-9d84-3e433dd53467" ignore="true">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock /process/auth/register" doc:id="c18ede11-f719-4609-b261-f5fb5c4a18ac" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="29839bcd-b123-4262-9b71-043e9274a994" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://postauthregisterhappyPath\mock_payload.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://postauthregisterhappyPath\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://postauthregisterhappyPath\mock_variable_.dwl')]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="14a40b5c-488f-449b-aed4-754b00c14fe4" >
+				<munit:payload value='#[output application/json --- readUrl("classpath://postauthregisterhappypath\set-event_payload.dwl")]' encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://postauthregisterhappyPath\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://postauthregisterhappyPath\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to post:\auth\register:application\json:ecommerceSuiteExperienceApi-config" doc:id="6f634954-dd6f-4d65-a54e-88c050ffe303" name="post:\auth\register:application\json:ecommerceSuiteExperienceApi-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="6f7e9f54-6863-491c-a15f-567bda2c49e7" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import postauthregisterhappyPath::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<flow name="duplicateEmail_helperFlow2" doc:id="4b8d6317-d9cc-4686-b8ef-18a64f9865e6" >
+		<http:listener doc:name="Listener" doc:id="5450113a-b5da-4d63-80e8-76be455c1918" config-ref="HTTP_Listener_config_munit" path="/auth/register">
+			<http:error-response statusCode="#[vars.httpStatus default 500]" />
+		</http:listener>
+		<raise-error doc:name="APP:DUPLICATE_EMAIL" doc:id="05f5bb76-7a39-4bce-90ad-6b3d3f2e271e" type="APP:DUPLICATE_EMAIL"/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="91891aa6-d3ba-49d1-89a1-fa01919d8ea5" type="APP:DUPLICATE_EMAIL">
+				<set-variable value="409" doc:name="httpStatus" doc:id="6af8a93d-63d7-42de-ae92-1d7d93db13ac" variableName="httpStatus"/>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="duplicateEmail_helperFlow" doc:id="2889f0af-7b94-45d9-80aa-35fdc3a5d0db" >
+		<http:request method="GET" doc:name="Request" doc:id="eddcbbae-0507-4a41-b818-da2b52cbe92a" config-ref="HTTP_Request_configuration1" path="/auth/register"/>
+	</flow>
+	<munit:test name="post:\auth\register_duplicateEmail" doc:id="76e934eb-6e91-41d0-bfe8-fc1b2c16981e">
+		<munit:enable-flow-sources>
+			<munit:enable-flow-source value="duplicateEmail_helperFlow2" />
+
+    </munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="/process/auth/register" doc:id="a3a913e0-3fda-4e83-a5e7-2ee30e9f3d19" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="29839bcd-b123-4262-9b71-043e9274a994" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-call flow="duplicateEmail_helperFlow" />
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Event" doc:id="72fb9f8f-a221-416d-af6f-f9be63549edc" >
+				<munit:payload value='#[output application/json&#10;---&#10;{&#10;  "firstName": "Tom",&#10;  "lastName": "holland",&#10;  "email": "tomholland@gmail.com",&#10;  "phoneNo": "7894896498",&#10;  "city": "nagpur",&#10;  "role": "seller",&#10;  "password": "tom"&#10;}]' />
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="4bcfc400-6d40-4d09-ad52-4cc18910a78e" >
+				<flow-ref doc:name="Flow-ref to post:\auth\register:application\json:ecommerceSuiteExperienceApi-config" doc:id="d2d695bd-159d-4744-9d19-e5f3988c07d1" name="post:\auth\register:application\json:ecommerceSuiteExperienceApi-config" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="d6f2b7b0-12db-40d4-9cbc-9f765dffddd8" type="ANY">
+						<logger level="INFO" doc:name="Logger" doc:id="b73e3d7b-8fb1-44eb-8e4b-d401fcae494d" message='#["Catching errors"]'/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="1758064f-42be-4731-86f1-c661b5d2cf04" actual="#[payload]" expected='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	message:"Email already registered. Please use a different email"&#10;}]'/>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

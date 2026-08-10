@@ -115,4 +115,15 @@ uses:
     body:
       application/json:
         library.postOrderRequestBody
-              
+  /buyer:
+    get:
+      securedBy: [library.jwt]
+  /seller:
+    get:
+      securedBy: [library.jwt]
+  /{orderId}:
+    get:
+      securedBy: [library.jwt]
+    /cancellation:
+      patch:
+        securedBy: [library.jwt]            
