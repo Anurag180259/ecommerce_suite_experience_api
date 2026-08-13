@@ -16,7 +16,7 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 	<http:request-config name="HTTP_Request_configuration1" doc:name="HTTP Request configuration" doc:id="7871bf95-e218-45c0-9899-18e5f004d788">
 		<http:request-connection host="localhost" port="8085" />
 	</http:request-config>
-	<munit:test name="post:\auth\login_happyPath" doc:id="5aa62f35-622c-40fc-801e-dde8a1b4d876" ignore="true">
+	<munit:test name="post:\auth\login_happyPath" doc:id="5aa62f35-622c-40fc-801e-dde8a1b4d876">
 		<munit:behavior >
 			<munit-tools:mock-when doc:name="Mock /process/auth/login" doc:id="f46c224a-e5c7-4075-8596-a94e0d6bbf19" processor="http:request">
 				<munit-tools:with-attributes >
@@ -50,7 +50,7 @@ assert_expression_payload1::main({payload: payload, attributes: attributes, vars
 			</munit-tools:assert>
 		</munit:validation>
 	</munit:test>
-	<munit:test name="post:\process\auth\login_emailNotFound" doc:id="3dce5979-65b1-4bb5-9174-c898a4b1e5da" ignore="true">
+	<munit:test name="post:\process\auth\login_emailNotFound" doc:id="3dce5979-65b1-4bb5-9174-c898a4b1e5da">
 		<munit:behavior >
 			<munit-tools:mock-when doc:name="Mock/process/auth/login" doc:id="5112fbae-ddf0-4c5f-9848-9894fc36aed9" processor="http:request">
 				<munit-tools:with-attributes>
@@ -72,7 +72,7 @@ assert_expression_payload1::main({payload: payload, attributes: attributes, vars
 			<munit-tools:assert-equals doc:name="httpStatus" doc:id="a4869bc7-235e-4237-b874-36d19f67b0f5" actual="#[vars.httpStatus]" expected="404"/>
 		</munit:validation>
 	</munit:test>
-	<munit:test name="post:\process\auth\login_passwordMismatch" doc:id="40999d83-720d-45ed-b5e8-f3326e889df1" ignore="true">
+	<munit:test name="post:\process\auth\login_passwordMismatch" doc:id="40999d83-720d-45ed-b5e8-f3326e889df1">
 		<munit:behavior >
 			<munit-tools:mock-when doc:name="Mock/process/auth/login" doc:id="ac8cf7fa-92c2-4921-91d4-24d2f04e944b" processor="http:request" >
 				<munit-tools:with-attributes >
@@ -102,7 +102,7 @@ payload must equalTo({
 			<munit-tools:assert-equals doc:name="httpStatus" doc:id="60597583-3506-4ca7-8031-7b8cb1b779c0" actual="#[vars.httpStatus]" expected="401"/>
 		</munit:validation>
 	</munit:test>
-	<munit:test name="post:\auth\register_happyPath" doc:id="3e991ba5-1d39-48c8-9d84-3e433dd53467" ignore="true">
+	<munit:test name="post:\auth\register_happyPath" doc:id="3e991ba5-1d39-48c8-9d84-3e433dd53467">
 		<munit:behavior >
 			<munit-tools:mock-when doc:name="Mock /process/auth/register" doc:id="c18ede11-f719-4609-b261-f5fb5c4a18ac" processor="http:request">
 				<munit-tools:with-attributes >
@@ -136,23 +136,23 @@ assert_expression_payload::main({payload: payload, attributes: attributes, vars:
 			</munit-tools:assert>
 		</munit:validation>
 	</munit:test>
-	<flow name="duplicateEmail_helperFlow2" doc:id="4b8d6317-d9cc-4686-b8ef-18a64f9865e6" >
-		<http:listener doc:name="Listener" doc:id="5450113a-b5da-4d63-80e8-76be455c1918" config-ref="HTTP_Listener_config_munit" path="/auth/register">
+	<flow name="throwConflict_helper" doc:id="4b8d6317-d9cc-4686-b8ef-18a64f9865e6" >
+		<http:listener doc:name="Listener" doc:id="5450113a-b5da-4d63-80e8-76be455c1918" config-ref="HTTP_Listener_config_munit" path="/throw/conflict">
 			<http:error-response statusCode="#[vars.httpStatus default 500]" />
 		</http:listener>
-		<raise-error doc:name="APP:DUPLICATE_EMAIL" doc:id="05f5bb76-7a39-4bce-90ad-6b3d3f2e271e" type="APP:DUPLICATE_EMAIL"/>
+		<raise-error doc:name="APP:CONFLICT" doc:id="05f5bb76-7a39-4bce-90ad-6b3d3f2e271e" type="APP:CONFLICT"/>
 		<error-handler >
-			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="91891aa6-d3ba-49d1-89a1-fa01919d8ea5" type="APP:DUPLICATE_EMAIL">
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="91891aa6-d3ba-49d1-89a1-fa01919d8ea5" type="APP:CONFLICT">
 				<set-variable value="409" doc:name="httpStatus" doc:id="6af8a93d-63d7-42de-ae92-1d7d93db13ac" variableName="httpStatus"/>
 			</on-error-propagate>
 		</error-handler>
 	</flow>
-	<flow name="duplicateEmail_helperFlow" doc:id="2889f0af-7b94-45d9-80aa-35fdc3a5d0db" >
-		<http:request method="GET" doc:name="Request" doc:id="eddcbbae-0507-4a41-b818-da2b52cbe92a" config-ref="HTTP_Request_configuration1" path="/auth/register"/>
+	<flow name="throwConflict" doc:id="2889f0af-7b94-45d9-80aa-35fdc3a5d0db" >
+		<http:request method="GET" doc:name="Request" doc:id="eddcbbae-0507-4a41-b818-da2b52cbe92a" config-ref="HTTP_Request_configuration1" path="/throw/conflict"/>
 	</flow>
 	<munit:test name="post:\auth\register_duplicateEmail" doc:id="76e934eb-6e91-41d0-bfe8-fc1b2c16981e">
 		<munit:enable-flow-sources>
-			<munit:enable-flow-source value="duplicateEmail_helperFlow2" />
+			<munit:enable-flow-source value="throwConflict_helper" />
 
     </munit:enable-flow-sources>
 		<munit:behavior >
@@ -160,7 +160,7 @@ assert_expression_payload::main({payload: payload, attributes: attributes, vars:
 				<munit-tools:with-attributes >
 					<munit-tools:with-attribute whereValue="29839bcd-b123-4262-9b71-043e9274a994" attributeName="doc:id" />
 				</munit-tools:with-attributes>
-				<munit-tools:then-call flow="duplicateEmail_helperFlow" />
+				<munit-tools:then-call flow="throwConflict" />
 			</munit-tools:mock-when>
 			<munit:set-event doc:name="Set Event" doc:id="72fb9f8f-a221-416d-af6f-f9be63549edc" >
 				<munit:payload value='#[output application/json&#10;---&#10;{&#10;  "firstName": "Tom",&#10;  "lastName": "holland",&#10;  "email": "tomholland@gmail.com",&#10;  "phoneNo": "7894896498",&#10;  "city": "nagpur",&#10;  "role": "seller",&#10;  "password": "tom"&#10;}]' />
@@ -178,6 +178,632 @@ assert_expression_payload::main({payload: payload, attributes: attributes, vars:
 		</munit:execution>
 		<munit:validation >
 			<munit-tools:assert-equals doc:name="Assert equals" doc:id="1758064f-42be-4731-86f1-c661b5d2cf04" actual="#[payload]" expected='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	message:"Email already registered. Please use a different email"&#10;}]'/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="post:\stores_happyPath" doc:id="334402f0-8e8e-458b-8283-8ac060c7d86f">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock POST/process/stores" doc:id="491ad0c4-bdd3-478c-bfd8-ea91619a9a21" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="c5222a4c-2217-4915-a515-19b4d718e10e" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://poststoreshappyPath\mock_payload.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://poststoreshappyPath\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://poststoreshappyPath\mock_variable_.dwl')]" />
+						<munit-tools:variable key="jwtClaims" value="#[output application/json --- readUrl('classpath://poststoreshappyPath\mock_variable_1.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="allowedRole" value="#[output application/java --- readUrl('classpath://poststoreshappyPath\mock_variable_2.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="95fa86bd-10c2-42dd-96de-08af06eb9b31" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://poststoreshappyPath\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://poststoreshappyPath\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://poststoreshappyPath\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to post:\stores:application\json:ecommerceSuiteExperienceApi-config" doc:id="22dea844-27d3-4b44-9148-4005ef771c74" name="post:\stores:application\json:ecommerceSuiteExperienceApi-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="6db83aeb-b30b-4f4b-94a0-e3e9cf6b1647" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import poststoreshappyPath::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="post:\stores_noJwt" doc:id="d8e8018c-6a1f-46ce-98c5-436c0f09a57b" expectedErrorType="APP:UNAUTHORIZED">
+		<munit:behavior>
+			<munit:set-event doc:name="Set Input" doc:id="8fa5f35f-776c-4d0f-954d-a7ce3b62d0e7" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://poststoreshappyPath\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://poststoreshappyPath\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to post:\stores:application\json:ecommerceSuiteExperienceApi-config" doc:id="d903b822-ca04-4abf-8da4-72f7f33f01b7" name="post:\stores:application\json:ecommerceSuiteExperienceApi-config" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="payload" doc:id="76775c4e-19b5-43d9-b6e9-914b735418c7" actual="#[payload]" expected='#[{&#10;	"Message":"Please provide valid JWT token"&#10;}]'/>
+			<munit-tools:assert-equals doc:name="httpStatus" doc:id="ae6afce8-d00c-4a02-a6d7-9bca59f3cc07" actual="#[vars.httpStatus]" expected="401"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="post:\stores_wrongRole" doc:id="e9314733-d6c5-4177-a9d8-53da66dd40f6" expectedErrorType="APP:FORBIDDEN">
+		<munit:behavior >
+			<munit:set-event doc:name="Set Input" doc:id="4e3af569-ec67-4642-b549-a08e2f0040ae" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://poststoreshappyPath\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value='#[{&#10;	headers:{&#10;		authorization:"Bearer eyJhbGciOiAiSFMyNTYiLCJ0eXAiOiAiSldUIn0.eyJ1c2VySWQiOiAiQS0yNzgwZDUiLCJpc3MiOiAiZWNvbW1lcmNlX3N1aXRlX2JhY2tlbmQiLCJhdWQiOiAiZWNvbW1lcmNlX2FwaSIsImlhdCI6IDE3ODYzNzAwMTksImV4cCI6IDE3ODYzNzM2MTksInJvbGUiOiAiYWRtaW4ifQ.K-IeJYrHHrHiML2y8CE-CRYyKssNEWe7v3hheEYRBKs"&#10;	}&#10;}]' />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://poststoreshappyPath\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to post:\stores:application\json:ecommerceSuiteExperienceApi-config" doc:id="e4b94743-8ab1-461a-8b49-17411a865ec3" name="post:\stores:application\json:ecommerceSuiteExperienceApi-config" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="payload" doc:id="678d368f-cde6-4c1a-9326-811dbda2ba6a" actual="#[payload]" expected='#[{&#10;	message:"You are not allowed to post a store"&#10;}]' />
+			<munit-tools:assert-equals doc:name="httpStatus" doc:id="9b7a8ac8-d825-4db6-a7b3-06d8d885f785" actual="#[vars.httpStatus]" expected="403" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="post:\stores_duplicateStoreName" doc:id="72a191a8-3d8c-4c89-a73e-1eedada5477c">
+
+		<munit:enable-flow-sources>
+			<munit:enable-flow-source value="raiseError_mainFlow" />
+		</munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="613ca9a6-ec43-4ba8-9c34-453b3d81d131" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="c5222a4c-2217-4915-a515-19b4d718e10e" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-call flow="raiseError_request" />
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="9eebec1d-0a75-4fec-8391-19dcc0e94b62" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://poststoreshappyPath\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://poststoreshappyPath\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://poststoreshappyPath\set-event_variable_.dwl')]" />
+					<munit:variable key="mockStatusCode" value="409" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="54d9d848-f306-47c4-be29-f5f044b4d3fc" >
+				<flow-ref doc:name="Flow-ref to post:\stores:application\json:ecommerceSuiteExperienceApi-config" doc:id="28c6088f-a046-48a2-8576-11e51bdb0584" name="post:\stores:application\json:ecommerceSuiteExperienceApi-config" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="cab27c7a-e269-4c48-b5cd-6f2ee76d6c17" >
+						<logger level="INFO" doc:name="Logger" doc:id="d523b666-de2a-4f20-b53c-5d0121b1890c" />
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-that doc:name="payload" doc:id="5ee5d95a-627b-492a-9295-9cdbf3ed4a61" is='#[MunitTools::equalTo({&#10;	message:"Store name is already registered. Please use a different name"&#10;})]' expression="#[payload]"/>
+			<munit-tools:assert-equals doc:name="httpStatus" doc:id="39a098a8-0641-4f0f-9847-6f11dd587dc4" actual="#[vars.httpStatus]" expected="409" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="patch:\stores\(storeId)\verification_happyPath" doc:id="a0c807a6-8a75-4bce-a6ce-5ba7243f403d">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock PATCH/store/{storeId}/verification" doc:id="ec6b51a3-218f-4abb-82ce-30049feebae5" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="9ca0b370-e872-4b16-b9d9-b54b76c385e0" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://patchstoresstoreIdverificationhappyPath\mock_payload.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://patchstoresstoreIdverificationhappyPath\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://patchstoresstoreIdverificationhappyPath\mock_variable_.dwl')]" />
+						<munit-tools:variable key="jwtClaims" value="#[output application/json --- readUrl('classpath://patchstoresstoreIdverificationhappyPath\mock_variable_1.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="allowedRole" value="#[output application/java --- readUrl('classpath://patchstoresstoreIdverificationhappyPath\mock_variable_2.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="8fe440a5-9980-4329-ad2d-c1a607a40c55" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://patchstoresstoreIdverificationhappyPath\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://patchstoresstoreIdverificationhappyPath\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://patchstoresstoreIdverificationhappyPath\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to patch:\stores\(storeId)\verification:application\json:ecommerceSuiteExperienceApi-config" doc:id="bb72fb73-490d-459b-b186-d1becf918dc1" name="patch:\stores\(storeId)\verification:application\json:ecommerceSuiteExperienceApi-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="ddaa358c-1c6e-4219-9859-e5187533cb94" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import patchstoresstoreIdverificationhappyPath::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="post:\admin\setup_happyPath" doc:id="a98e0651-de7b-4086-9a3a-302e43c684d8">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock POST/process/admin/setup" doc:id="6259785f-5454-4de8-9770-f2ff53bf6eef" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="1f56e1e7-d220-41e5-94a9-91793df9fe03" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://postadminsetuphappyPath\mock_payload.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://postadminsetuphappyPath\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://postadminsetuphappyPath\mock_variable_.dwl')]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="df07e7d2-6bb7-454e-83a6-21df49d1cf02" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://postadminsetuphappyPath\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://postadminsetuphappyPath\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://postadminsetuphappyPath\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to post:\admin\setup:application\json:ecommerceSuiteExperienceApi-config" doc:id="76473346-ee5b-4472-ba49-4c6833ce7c54" name="post:\admin\setup:application\json:ecommerceSuiteExperienceApi-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="fc72aa6d-dd2e-4366-8da5-9f853eaab85f" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import postadminsetuphappyPath::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="post:\admin\setup_alreadyRegistered" doc:id="ef68a65f-d989-4418-98e1-573737f7f957" expectedErrorType="HTTP:FORBIDDEN">
+		<munit:behavior >
+			<munit:set-event doc:name="Set Input" doc:id="b7498ab2-ad2f-4a94-b442-c764ee6ecdbc" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://postadminsetuphappyPath\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://postadminsetuphappyPath\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://postadminsetuphappyPath\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock POST/process/admin/setup" doc:id="35d9188a-02fa-48da-9149-c2e4a0246a1a" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="1f56e1e7-d220-41e5-94a9-91793df9fe03" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[null]" />
+					<munit-tools:error typeId="HTTP:FORBIDDEN" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://postadminsetuphappyPath\mock_variable_.dwl')]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to post:\admin\setup:application\json:ecommerceSuiteExperienceApi-config" doc:id="aa7ae18a-5de5-4815-b097-e881ab28e4fb" name="post:\admin\setup:application\json:ecommerceSuiteExperienceApi-config" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="8b752a0c-24f8-4a16-902d-f7a1953c17ed" message="The payload does not match" >
+				<munit-tools:that ><![CDATA[#[{
+	message:"Admin is already registered. you cannot register as an admin"
+}]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="post:\stores\(storeId)\products_happyPath" doc:id="e03680c9-fcb5-448b-ba70-19b083658747">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock storeId" doc:id="12a10ca0-31d8-4c3a-b2d9-67de3d0d0bc4" processor="set-variable">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="bbb7fa3c-867e-4070-81d4-9d33ae787b06" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://poststoresstoreIdproductshappyPath\mock_variable_.dwl')]" />
+						<munit-tools:variable key="storeId" value="#[output application/java --- readUrl('classpath://poststoresstoreIdproductshappyPath\mock_variable_1.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock POST/stores/{storeId}/products" doc:id="80ddd1fe-f75f-405a-8aea-a2aaa4519ce7" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="4013fc62-03e7-4f81-9f80-b2a32727ca9a" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://poststoresstoreIdproductshappyPath\mock_payload.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://poststoresstoreIdproductshappyPath\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://poststoresstoreIdproductshappyPath\mock_variable_2.dwl')]" />
+						<munit-tools:variable key="jwtClaims" value="#[output application/json --- readUrl('classpath://poststoresstoreIdproductshappyPath\mock_variable_3.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="allowedRole" value="#[output application/java --- readUrl('classpath://poststoresstoreIdproductshappyPath\mock_variable_4.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="storeId" value="#[output application/java --- readUrl('classpath://poststoresstoreIdproductshappyPath\mock_variable_5.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="45b56bd8-964f-4a09-9a5c-1061821da486" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://poststoresstoreIdproductshappyPath\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://poststoresstoreIdproductshappyPath\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://poststoresstoreIdproductshappyPath\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to post:\stores\(storeId)\products:application\json:ecommerceSuiteExperienceApi-config" doc:id="5459e424-7f33-4f18-a021-a2f75ac464ca" name="post:\stores\(storeId)\products:application\json:ecommerceSuiteExperienceApi-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="3765473b-a9ca-4546-97bd-7a0d70f44f15" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import poststoresstoreIdproductshappyPath::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="post:\stores\(storeId)\products_storeUnverified" doc:id="e89b0e02-5b1e-4ea6-98e9-fb274c8ca13d">
+		<munit:enable-flow-sources >
+			<munit:enable-flow-source value="raiseError_mainFlow" />
+		</munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="http:request" doc:id="96c92083-8a89-4de7-877e-ed45640278c3" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="4013fc62-03e7-4f81-9f80-b2a32727ca9a" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-call flow="raiseError_request" />
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="423913a1-d9d3-4fed-a51c-7fcd85356e8c" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://poststoresstoreIdproductshappyPath\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://poststoresstoreIdproductshappyPath\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://poststoresstoreIdproductshappyPath\set-event_variable_.dwl')]" />
+					<munit:variable key="mockStatusCode" value="403" />
+					<munit:variable key="mockPayload" value='#[{"reason":"storeNotVerified"}]' />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="5a030fe9-88b8-4249-9036-b6c3ea2fc432" >
+				<flow-ref doc:name="Flow-ref to post:\stores\(storeId)\products:application\json:ecommerceSuiteExperienceApi-config" doc:id="2c2c6b6c-a985-4b90-8e37-f7be68bc4bf4" name="post:\stores\(storeId)\products:application\json:ecommerceSuiteExperienceApi-config" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="1876beda-a02d-461e-a47b-73c857070602" type="ANY" >
+						<logger level="INFO" doc:name="Logger" doc:id="d973a8f1-6bcf-4e0f-af0a-0b9f32d09050" />
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="6352ad35-7332-4c14-b0b5-2cdf86438f38" actual="#[payload]" expected='#[%dw 2.0&#10;output application/json&#10;---{&#10; message:"Your store is not verified yet. You are not allowed to add a product"&#10;}]'/>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="99d7b11e-decf-4121-b8b7-f48fc88a4777" expression="#[vars.httpStatus as Number]" is="#[MunitTools::equalTo(403)]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="post:\stores\(storeId)\products_notAllowed" doc:id="ad601588-cf37-47f5-8865-b36e60962b82">
+		<munit:enable-flow-sources>
+			<munit:enable-flow-source value="raiseError_mainFlow" />
+		</munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="http:request" doc:id="e76b8721-84d3-43eb-a755-c0dfb2bf4cc6" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="4013fc62-03e7-4f81-9f80-b2a32727ca9a" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-call flow="raiseError_request" />
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="12430dc1-3956-4b1c-a48e-26525604291a">
+				<munit:payload value="#[output application/json --- readUrl('classpath://poststoresstoreIdproductshappyPath\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://poststoresstoreIdproductshappyPath\set-event_attributes.dwl')]" />
+				<munit:variables>
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://poststoresstoreIdproductshappyPath\set-event_variable_.dwl')]" />
+					<munit:variable key="mockStatusCode" value="403" />
+					<munit:variable key="mockErrorType" value="APP:FORBIDDEN" />
+					<munit:variable key="mockPayload" value='#[{"reason":"notAllowed"}]' />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="632b8784-0844-47a0-abdb-0514d21ee143" >
+				<flow-ref doc:name="Flow-ref to post:\stores\(storeId)\products:application\json:ecommerceSuiteExperienceApi-config" doc:id="92e5a909-7868-48d9-bbe9-253f856802ae" name="post:\stores\(storeId)\products:application\json:ecommerceSuiteExperienceApi-config" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="585ca491-c6ba-4905-8d9d-d8cf8d77b8d4" type="ANY">
+						<logger level="INFO" doc:name="Logger" doc:id="1170720d-571c-4528-a15b-ea5ca315ec1d" />
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="b62ba9f8-8fd2-4b17-9562-a8c62f6b8995" is='#[MunitTools::equalTo({&#10; message:"This store belongs to a different seller. You are not allowed to post products in this store",&#10; storeId:vars.storeId&#10;})]' expression="#[payload]"/>
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="ce056242-870d-48bf-8be5-4b16cac8d103" actual="#[vars.httpStatus as Number]" expected="#[403]" />
+		</munit:validation>
+	</munit:test>
+	<flow name="raiseError_request" doc:id="d4fce18e-6ad8-49f5-acb7-257f60a64ec4" >
+		<http:request method="POST" doc:name="Request" doc:id="1f14bbb8-8c0f-4988-ad35-763ab0299f5d" config-ref="HTTP_Request_configuration1" path="/munit/helper">
+			<http:body ><![CDATA[#[%dw 2.0 
+output application/json
+---
+vars.mockPayload default null]]]></http:body>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"mockStatusCode" : vars.mockStatusCode
+}]]]></http:query-params>
+		</http:request>
+	</flow>
+	<flow name="raiseError_mainFlow" doc:id="6a775f14-3d9c-4c2c-8b3f-ef279451d7e4" >
+		<http:listener doc:name="Listener" doc:id="58515949-0249-421e-b3ce-aaecbc4d7cad" config-ref="HTTP_Listener_config_munit" path="/munit/helper">
+			<http:error-response statusCode="#[vars.httpStatus default 500]" >
+				<http:body ><![CDATA[#[payload]]]></http:body>
+			</http:error-response>
+		</http:listener>
+		<raise-error doc:name="Raise error" doc:id="2d2d66c8-58cf-49e9-a1f6-6fa405bb84d7" type="APP:MUNIT_HELPER" />
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="APP:MUNIT_HELPER" doc:id="8a71bf90-0bbd-49d6-943a-391855e28674" type="APP:MUNIT_HELPER">
+				<ee:transform doc:name="Transform Message" doc:id="5e700519-2907-4003-9e5b-576a822424c2" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[attributes.queryParams.mockStatusCode]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<munit:test name="get:\products_happyPath" doc:id="63928dc7-bba7-4cae-b6d2-6db5b1a7b17d">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock GET/products" doc:id="bd43a566-4b9b-41ef-83f7-e66fb4597286" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="ef62a44f-7ce5-40d3-a7f5-2f80b3346cb8" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://getproductshappyPath\mock_payload.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://getproductshappyPath\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://getproductshappyPath\mock_variable_.dwl')]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="5329c0fc-b2a5-4784-8e14-da1927f35a6e" >
+				<munit:payload value="#[readUrl('classpath://getproductshappyPath\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://getproductshappyPath\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://getproductshappyPath\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to get:\products:ecommerceSuiteExperienceApi-config" doc:id="90417ff4-a01d-439f-8d6c-9025ee5dd514" name="get:\products:ecommerceSuiteExperienceApi-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="aba20d83-d945-44b8-913a-4b4bbcb76f82" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import getproductshappyPath::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="get:\stores\(storeId)\products_happyPath" doc:id="d135100f-e8d1-4f83-bf7b-f7cd787005eb">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock GET/process/stores/{storeId}/products" doc:id="8f67592a-3593-4b78-9e83-80583ba721ae" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="026cf96c-48f1-4b99-a858-4403ec410136" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://getstoresstoreIdproductshappyPath\mock_payload.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://getstoresstoreIdproductshappyPath\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://getstoresstoreIdproductshappyPath\mock_variable_.dwl')]" />
+						<munit-tools:variable key="storeId" value="#[output application/java --- readUrl('classpath://getstoresstoreIdproductshappyPath\mock_variable_1.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="18b2f9a5-f37c-4d79-89cd-2316ec4949a2" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://getstoresstoreIdproductshappyPath\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://getstoresstoreIdproductshappyPath\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://getstoresstoreIdproductshappyPath\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to get:\stores\(storeId)\products:ecommerceSuiteExperienceApi-config" doc:id="93061eae-7adf-4467-92fe-2224edfc9576" name="get:\stores\(storeId)\products:ecommerceSuiteExperienceApi-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="170ecee1-04ea-4cbf-98cf-c1d373663d28" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import getstoresstoreIdproductshappyPath::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="get:\products\(productId)_happyPath" doc:id="785d2114-513c-415a-83a1-cb4c3066bd1a">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock Request" doc:id="c9780db5-5fc3-4d20-ae53-4d45fe3dad2a" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="3d23e52b-2311-4782-9422-5eb4ac6d68ba" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://getproductsproductIdhappyPath\mock_payload.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://getproductsproductIdhappyPath\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://getproductsproductIdhappyPath\mock_variable_.dwl')]" />
+						<munit-tools:variable key="productId" value="#[output application/java --- readUrl('classpath://getproductsproductIdhappyPath\mock_variable_1.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="ba43d082-5dde-4764-b8d6-ce41bf4b196f" >
+				<munit:payload value="#[readUrl('classpath://getproductsproductIdhappyPath\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://getproductsproductIdhappyPath\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://getproductsproductIdhappyPath\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to get:\products\(productId):ecommerceSuiteExperienceApi-config" doc:id="32e2ca90-85fc-47e4-9f70-a8467952a4d4" name="get:\products\(productId):ecommerceSuiteExperienceApi-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="fdbb0d1c-26f6-4c16-8193-5f55b3a782eb" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import getproductsproductIdhappyPath::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="get:\products\(productId)_productNotFound" doc:id="063af2f2-1a74-4731-9c12-124db79048f1">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="035702f5-22ce-47dc-bc54-ff696bd2dc6c" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="3d23e52b-2311-4782-9422-5eb4ac6d68ba" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:NOT_FOUND" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="ecec2b76-3dcf-42ff-931f-2d73b1113b58" >
+				<munit:payload value="#[readUrl('classpath://getproductsproductIdhappyPath\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://getproductsproductIdhappyPath\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://getproductsproductIdhappyPath\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="fe446b0b-4d1d-4755-949b-4a597c785131" >
+				<flow-ref doc:name="Flow-ref to get:\products\(productId):ecommerceSuiteExperienceApi-config" doc:id="ff96aa87-6def-48d3-93e4-56edcd513948" name="get:\products\(productId):ecommerceSuiteExperienceApi-config" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="61585f14-a82e-47f1-bbd3-814f2505b01d" type="HTTP:NOT_FOUND"/>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert expression" doc:id="be43f7ab-e7dd-4a03-93e0-cfe4f21e3e30" >
+				<munit-tools:that ><![CDATA[#[import * from dw::test::Asserts
+---
+payload must equalTo({
+ message:"product with productId: " ++ vars.productId as String ++ " not found"
+})]]]></munit-tools:that>
+			</munit-tools:assert>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="db51ba69-f291-49d6-a599-5c049ca8a306" expression="#[vars.httpStatus]" is="#[MunitTools::equalTo(404)]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="delete:\products\(productId)_happyPath" doc:id="8d2c3945-40e6-4f9f-b2ed-4f0176c93698">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock DELETE/process/product/{productId}" doc:id="6be5ec82-0ab4-4428-ad2c-a3aab8fd8e53" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="c566ef90-75eb-4701-9ba0-926627f27779" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://deleteproductsproductIdhappyPath\mock_payload.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://deleteproductsproductIdhappyPath\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://deleteproductsproductIdhappyPath\mock_variable_.dwl')]" />
+						<munit-tools:variable key="jwtClaims" value="#[output application/json --- readUrl('classpath://deleteproductsproductIdhappyPath\mock_variable_1.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="allowedRole" value="#[output application/java --- readUrl('classpath://deleteproductsproductIdhappyPath\mock_variable_2.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="3d8b448b-54d5-4aa9-b1c2-ade102509798" >
+				<munit:payload value="#[readUrl('classpath://deleteproductsproductIdhappyPath\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://deleteproductsproductIdhappyPath\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://deleteproductsproductIdhappyPath\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to delete:\products\(productId):ecommerceSuiteExperienceApi-config" doc:id="77255ba3-e482-4f69-95db-4eba5591b4ea" name="delete:\products\(productId):ecommerceSuiteExperienceApi-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="594c2460-679e-4e11-911e-0aea09e94ce7" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import deleteproductsproductIdhappyPath::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="globalErrorHandler_noJwtToken" doc:id="11755524-ded4-4760-950e-ecf2c3f1960e">
+		<munit:behavior >
+			<munit:set-event doc:name="Set Input" doc:id="72353fc9-5353-49e1-9afd-d27c74bbe047" >
+				<munit:payload value="#[readUrl('classpath://deleteproductsproductIdhappyPath\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value='#[{&#10;	"uriParams": {&#10;    "productId": "P-9b8bc5"&#10;  }&#10;}]' />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://deleteproductsproductIdhappyPath\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="ff72cf9a-a374-471a-8c16-18d8065722ee" >
+				<flow-ref doc:name="Flow-ref to delete:\products\(productId):ecommerceSuiteExperienceApi-config" doc:id="ee1d4998-2718-4e6e-ba82-d0c5339b463b" name="delete:\products\(productId):ecommerceSuiteExperienceApi-config" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="931f5889-737c-49ce-9532-e50b15f034cd" />
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="payload" doc:id="5d1db928-c30b-4ca3-942d-030a89d47759" actual="#[payload]" expected='#[{&#10;	message:"Please provide a valid JWT Token"&#10;}]'/>
+			<munit-tools:assert-equals doc:name="httpStatus" doc:id="40313fa3-64fb-43bd-87d5-e7fed79ff26e" actual="#[vars.httpStatus]" expected="#[401]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="globalErrorHandler_wrongRole" doc:id="08690418-48c8-4098-8613-d9d2e84ed4a0">
+		<munit:behavior >
+			<munit:set-event doc:name="Set Input" doc:id="ed13750c-1da4-4c6c-98b9-abd5cabdc452" >
+				<munit:payload value="#[readUrl('classpath://deleteproductsproductIdhappyPath\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value='#[{&#10;	"uriParams": {&#10;    "productId": "P-9b8bc5"&#10;  },&#10;  headers:{&#10;  	authorization:"Bearer eyJhbGciOiAiSFMyNTYiLCJ0eXAiOiAiSldUIn0.eyJ1c2VySWQiOiAiQi0zMzYzYjkiLCJpc3MiOiAiZWNvbW1lcmNlX3N1aXRlX2JhY2tlbmQiLCJhdWQiOiAiZWNvbW1lcmNlX2FwaSIsImlhdCI6IDE3ODY0NjU2NDEsImV4cCI6IDE3ODY0NjkyNDEsInJvbGUiOiAiYnV5ZXIifQ.KaBSPDzff5ptOLEikUnDz08JydMWfENC4-P-6LQBkFE"&#10;  }&#10;}]' />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://deleteproductsproductIdhappyPath\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="4fed199a-0c91-4de0-9f05-bc965333f392" >
+				<flow-ref doc:name="Flow-ref to delete:\products\(productId):ecommerceSuiteExperienceApi-config" doc:id="4f0246fd-9087-4c25-8514-7d4be1fa61b3" name="delete:\products\(productId):ecommerceSuiteExperienceApi-config" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="69149fa6-509d-4967-b4f3-20c13f6e7831" />
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="payload" doc:id="b86a737b-eb9c-4846-8816-6f1f6a073543" actual="#[payload]" expected='#[{&#10;	message:"You are not allowed to access this resource",&#10;	info:"Wrong Role"&#10;}]' />
+			<munit-tools:assert-equals doc:name="httpStatus" doc:id="0038c40c-b2f9-4403-ab14-de5d4973180e" actual="#[vars.httpStatus]" expected="#[403]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="globalErrorHandler_ownershipCheck_processApi" doc:id="1a489468-c4ef-4c24-9079-d128f616e797" >
+		<munit:enable-flow-sources >
+			<munit:enable-flow-source value="raiseError_mainFlow" />
+		</munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="b7419614-8ab6-4ab2-a323-63bedfe2d5ae" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="c566ef90-75eb-4701-9ba0-926627f27779" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:FORBIDDEN" />
+				</munit-tools:then-return>
+				<munit-tools:then-call flow="raiseError_request" />
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="d64c14fb-4920-49da-ae17-e6e337934dac" >
+				<munit:payload value="#[readUrl('classpath://deleteproductsproductIdhappyPath\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://deleteproductsproductIdhappyPath\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://deleteproductsproductIdhappyPath\set-event_variable_.dwl')]" />
+					<munit:variable key="mockStatusCode" value="403" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="01f99285-38cb-447b-b6cf-c6a236842a65" >
+				<flow-ref doc:name="Flow-ref to delete:\products\(productId):ecommerceSuiteExperienceApi-config" doc:id="7139a5ac-ea94-4a7f-a704-0432dc65d5b4" name="delete:\products\(productId):ecommerceSuiteExperienceApi-config" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="9c7453cb-44dd-4282-8dc3-a0eda62eadfa" />
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="f6fe2f6d-3507-4610-93fc-01a8e1d3a504" actual="#[payload]" expected='#[{&#10;	Message:"You are not allowed to access this resource"&#10;}]'/>
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="68ddc8d5-3394-44d9-98df-874d1e7d09bf" actual="#[vars.httpStatus]" expected="#[403]"/>
 		</munit:validation>
 	</munit:test>
 
