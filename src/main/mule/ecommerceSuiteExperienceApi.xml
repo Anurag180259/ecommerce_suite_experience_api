@@ -220,15 +220,15 @@ output application/json
         <error-handler>
             <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="f2ef0fe6-8f34-4f98-9194-3586006e24b0" type="APP:UNAUTHORIZED">
                 <set-variable value="401" doc:name="httpStatus 401" doc:id="e3313607-af32-4b8b-9f76-bb1f99cfce5b" variableName="httpStatus" />
-                <set-payload value="#[&quot;PLEASE PROVIDE VALID JWT TOKEN&quot;]" doc:name="Set Payload" doc:id="eb9e16a3-8388-46e8-acef-5329c29a144e" />
+                <set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"Message":"Please provide valid JWT token"&#10;}]' doc:name="Set Payload" doc:id="eb9e16a3-8388-46e8-acef-5329c29a144e" />
             </on-error-propagate>
             <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="3742ac93-eeb4-4358-ac84-ea76b247b71d" type="APP:FORBIDDEN">
                 <set-variable value="403" doc:name="httpStatus 403" doc:id="9e1241b4-2476-44b2-9d69-83a18483c888" variableName="httpStatus" />
-                <set-payload value="#[&quot;PLEASE CREATE A SELLER ID TO ADD A STORE&quot;]" doc:name="Set Payload" doc:id="b3c19d6c-ac69-47cf-af0f-7fc0eeac6218" />
+                <set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	message:"You are not allowed to post a store"&#10;}]' doc:name="Set Payload" doc:id="b3c19d6c-ac69-47cf-af0f-7fc0eeac6218" />
             </on-error-propagate>
             <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="2e1b8465-bc9b-467f-a90c-986e998df6ac" when="#[error.errorMessage.attributes.statusCode == 409]">
                 <set-variable value="409" doc:name="httpStatus 409" doc:id="f91d85f7-0a06-45db-8b2e-3862ef5300b7" variableName="httpStatus" />
-                <set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	message:"Store name " ++ payload.storeName ++ " is already registered. Please use a different name"&#10;}]' doc:name="Set Payload" doc:id="2397e110-6bec-47b1-ac68-6a689dce91ed" />
+                <set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	message:"Store name is already registered. Please use a different name"&#10;}]' doc:name="Set Payload" doc:id="2397e110-6bec-47b1-ac68-6a689dce91ed" />
             </on-error-propagate>
         </error-handler>
     </flow>
@@ -317,11 +317,13 @@ output application/json
             </ee:message>
         </ee:transform>
         <error-handler>
-            <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propogate" doc:id="b5e0c1d8-ef70-4d8b-aa23-e4f5e7559159" when="#[error.errorMessage.attributes.statusCode == 403]">
+            <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propogate" doc:id="b5e0c1d8-ef70-4d8b-aa23-e4f5e7559159" when='#[(error.errorMessage.attributes.statusCode == 403) and (error.errorMessage.payload.reason == "notAllowed")]'>
                 <set-payload value="#[%dw 2.0&#xA;output application/json&#xA;---&#xA;{&#xA; message:&quot;This store belongs to a different seller. You are not allowed to post products in this store&quot;,&#xA; storeId:vars.storeId&#xA;}]" doc:name="Set Payload" doc:id="07923109-ed5f-4ef9-b3cd-5b4393ab09c4" />
+				<set-variable value="403" doc:name="httpStatus 40" doc:id="34c30bc3-6b40-41cb-89e1-623b6227950a" variableName="httpStatus" />
             </on-error-propagate>
-            <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="207cce49-ac7a-40e8-bcc7-9ea73fe41660" when="#[error.errorMessage.attributes.statusCode == 401]">
+            <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="207cce49-ac7a-40e8-bcc7-9ea73fe41660" when='#[(error.errorMessage.attributes.statusCode == 403) and (error.errorMessage.payload.reason == "storeNotVerified")]'>
                 <set-payload value="#[%dw 2.0&#xA;output application/json&#xA;---&#xA;{&#xA; message:&quot;Your store is not verified yet. You are not allowed to add a product&quot;&#xA;}]" doc:name="Set Payload" doc:id="3369ee9b-bb6d-4fe9-877b-32f839c63b1c" />
+				<set-variable value="403" doc:name="httpStatus 40" doc:id="f2c3e057-cc4a-4be5-9036-adf12f78dd42" variableName="httpStatus" />
             </on-error-propagate>
         </error-handler>
     </flow>
@@ -458,8 +460,20 @@ output application/json
             </ee:message>
         </ee:transform>
         <error-handler>
-            <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="05e11a28-0cfd-4eae-902b-8922221026b6" when="#[error.errorMessage.attributes.statusCode == 404]">
-                <set-payload value="#[%dw 2.0&#xA;output application/json&#xA;---&#xA;{&#xA; message:&quot;product with productId: &quot; ++ vars.productId ++ &quot; not found&quot;&#xA;}]" doc:name="Set Payload" doc:id="4a1bec4c-c8c2-4da8-a2a7-2b14f0a4b2e8" />
+            <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="05e11a28-0cfd-4eae-902b-8922221026b6" type="HTTP:NOT_FOUND">
+				<ee:transform doc:name="Transform Message" doc:id="6dfe7602-4f65-4ae1-8841-65db43587e24" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+ message:"product with productId: " ++ vars.productId as String ++ " not found"
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[404]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
             </on-error-propagate>
         </error-handler>
     </flow>
