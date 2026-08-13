@@ -16,7 +16,7 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 	<http:request-config name="HTTP_Request_configuration1" doc:name="HTTP Request configuration" doc:id="7871bf95-e218-45c0-9899-18e5f004d788">
 		<http:request-connection host="localhost" port="8085" />
 	</http:request-config>
-	<munit:test name="post:\auth\login_happyPath" doc:id="5aa62f35-622c-40fc-801e-dde8a1b4d876" ignore="true">
+	<munit:test name="post:\auth\login_happyPath" doc:id="5aa62f35-622c-40fc-801e-dde8a1b4d876">
 		<munit:behavior >
 			<munit-tools:mock-when doc:name="Mock /process/auth/login" doc:id="f46c224a-e5c7-4075-8596-a94e0d6bbf19" processor="http:request">
 				<munit-tools:with-attributes >
@@ -50,7 +50,7 @@ assert_expression_payload1::main({payload: payload, attributes: attributes, vars
 			</munit-tools:assert>
 		</munit:validation>
 	</munit:test>
-	<munit:test name="post:\process\auth\login_emailNotFound" doc:id="3dce5979-65b1-4bb5-9174-c898a4b1e5da" ignore="true">
+	<munit:test name="post:\process\auth\login_emailNotFound" doc:id="3dce5979-65b1-4bb5-9174-c898a4b1e5da">
 		<munit:behavior >
 			<munit-tools:mock-when doc:name="Mock/process/auth/login" doc:id="5112fbae-ddf0-4c5f-9848-9894fc36aed9" processor="http:request">
 				<munit-tools:with-attributes>
@@ -72,7 +72,7 @@ assert_expression_payload1::main({payload: payload, attributes: attributes, vars
 			<munit-tools:assert-equals doc:name="httpStatus" doc:id="a4869bc7-235e-4237-b874-36d19f67b0f5" actual="#[vars.httpStatus]" expected="404"/>
 		</munit:validation>
 	</munit:test>
-	<munit:test name="post:\process\auth\login_passwordMismatch" doc:id="40999d83-720d-45ed-b5e8-f3326e889df1" ignore="true">
+	<munit:test name="post:\process\auth\login_passwordMismatch" doc:id="40999d83-720d-45ed-b5e8-f3326e889df1">
 		<munit:behavior >
 			<munit-tools:mock-when doc:name="Mock/process/auth/login" doc:id="ac8cf7fa-92c2-4921-91d4-24d2f04e944b" processor="http:request" >
 				<munit-tools:with-attributes >
@@ -102,7 +102,7 @@ payload must equalTo({
 			<munit-tools:assert-equals doc:name="httpStatus" doc:id="60597583-3506-4ca7-8031-7b8cb1b779c0" actual="#[vars.httpStatus]" expected="401"/>
 		</munit:validation>
 	</munit:test>
-	<munit:test name="post:\auth\register_happyPath" doc:id="3e991ba5-1d39-48c8-9d84-3e433dd53467" ignore="true">
+	<munit:test name="post:\auth\register_happyPath" doc:id="3e991ba5-1d39-48c8-9d84-3e433dd53467">
 		<munit:behavior >
 			<munit-tools:mock-when doc:name="Mock /process/auth/register" doc:id="c18ede11-f719-4609-b261-f5fb5c4a18ac" processor="http:request">
 				<munit-tools:with-attributes >
