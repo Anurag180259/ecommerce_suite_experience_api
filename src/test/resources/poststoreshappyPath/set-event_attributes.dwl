@@ -1,0 +1,30 @@
+{
+  "headers": {
+    "content-type": "application/json",
+    "authorization": "Bearer eyJhbGciOiAiSFMyNTYiLCJ0eXAiOiAiSldUIn0.eyJ1c2VySWQiOiAiUy0xNWQzMmUiLCJpc3MiOiAiZWNvbW1lcmNlX3N1aXRlX2JhY2tlbmQiLCJhdWQiOiAiZWNvbW1lcmNlX2FwaSIsImlhdCI6IDE3ODYzNjg1NzcsImV4cCI6IDE3ODYzNzIxNzcsInJvbGUiOiAic2VsbGVyIn0.YSH1ujLbe5wz_2Lu51D2yUMYkCJp1HGQ6JvsusImNXY",
+    "user-agent": "PostmanRuntime/7.56.0",
+    "accept": "*/*",
+    "cache-control": "no-cache",
+    "postman-token": "78f9c47a-abd1-4f99-96a2-c8a0830a2e28",
+    "host": "localhost:8085",
+    "accept-encoding": "gzip, deflate, br",
+    "connection": "keep-alive",
+    "content-length": "143"
+  },
+  "clientCertificate": null,
+  "method": "POST",
+  "scheme": "http",
+  "queryParams": {},
+  "requestUri": "/exp/stores",
+  "queryString": "",
+  "version": "HTTP/1.1",
+  "maskedRequestPath": "/stores",
+  "listenerPath": "/exp/*",
+  "localAddress": "/127.0.0.1:8085",
+  "relativePath": "/exp/stores",
+  "uriParams": {},
+  "rawRequestUri": "/exp/stores",
+  "rawRequestPath": "/exp/stores",
+  "remoteAddress": "/127.0.0.1:55062",
+  "requestPath": "/exp/stores"
+}

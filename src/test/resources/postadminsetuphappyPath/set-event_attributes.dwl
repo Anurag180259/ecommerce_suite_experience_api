@@ -1,0 +1,30 @@
+{
+  "headers": {
+    "content-type": "application/json",
+    "authorization": "Bearer eyJhbGciOiAiSFMyNTYiLCJ0eXAiOiAiSldUIn0.eyJ1c2VySWQiOiAiUy0zM2JkNTgiLCJpc3MiOiAiZWNvbW1lcmNlX3N1aXRlX2JhY2tlbmQiLCJhdWQiOiAiZWNvbW1lcmNlX2FwaSIsImlhdCI6IDE3ODUwMzc0MzIsImV4cCI6IDE3ODUwNDEwMzIsInJvbGUiOiAic2VsbGVyIn0.NpJuFEvvx_5zqn0Ge75nl8HACp5ujgDZQjhaB28ZcTU",
+    "user-agent": "PostmanRuntime/7.56.0",
+    "accept": "*/*",
+    "cache-control": "no-cache",
+    "postman-token": "1ae4ab01-0520-430e-aa62-1b78cf5d01f6",
+    "host": "localhost:8085",
+    "accept-encoding": "gzip, deflate, br",
+    "connection": "keep-alive",
+    "content-length": "166"
+  },
+  "clientCertificate": null,
+  "method": "POST",
+  "scheme": "http",
+  "queryParams": {},
+  "requestUri": "/exp/admin/setup",
+  "queryString": "",
+  "version": "HTTP/1.1",
+  "maskedRequestPath": "/admin/setup",
+  "listenerPath": "/exp/*",
+  "localAddress": "/127.0.0.1:8085",
+  "relativePath": "/exp/admin/setup",
+  "uriParams": {},
+  "rawRequestUri": "/exp/admin/setup",
+  "rawRequestPath": "/exp/admin/setup",
+  "remoteAddress": "/127.0.0.1:52260",
+  "requestPath": "/exp/admin/setup"
+}
