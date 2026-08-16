@@ -283,7 +283,7 @@ output application/json
         </ee:transform>
         <error-handler>
             <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="f6cf60de-e8fe-44b7-a6b3-506995d28a12" when="#[error.errorMessage.attributes.statusCode == 403]">
-                <set-variable value="403" doc:name="httpStatus 403" doc:id="b8c65471-5688-4f9c-8b21-a07007ab6bdb" variableName="httpStatus" />
+                <set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;403]" doc:name="httpStatus 403" doc:id="b8c65471-5688-4f9c-8b21-a07007ab6bdb" variableName="httpStatus" />
                 <set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	message:"Admin is already registered. you cannot register as an admin"&#10;}]' doc:name="Set Payload" doc:id="45d5513c-2dc5-46fa-915b-11ff5be488c5" />
             </on-error-propagate>
         </error-handler>
@@ -395,7 +395,7 @@ output application/json
 ---
 {
 	storeId:vars.storeId,
-	message:"This store doesnt have any products"
+	message:"This store doesnt have any products or the store with this storeId doesn't exist"
 }]]></ee:set-payload>
                     </ee:message>
                 </ee:transform>
@@ -459,23 +459,6 @@ output application/json
 }]]></ee:set-payload>
             </ee:message>
         </ee:transform>
-        <error-handler>
-            <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="05e11a28-0cfd-4eae-902b-8922221026b6" type="HTTP:NOT_FOUND">
-				<ee:transform doc:name="Transform Message" doc:id="6dfe7602-4f65-4ae1-8841-65db43587e24" >
-					<ee:message >
-						<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
----
-{
- message:"product with productId: " ++ vars.productId as String ++ " not found"
-}]]></ee:set-payload>
-					</ee:message>
-					<ee:variables >
-						<ee:set-variable variableName="httpStatus" ><![CDATA[404]]></ee:set-variable>
-					</ee:variables>
-				</ee:transform>
-            </on-error-propagate>
-        </error-handler>
     </flow>
     <flow name="delete:\products\(productId):ecommerceSuiteExperienceApi-config">
         <logger level="INFO" message="#[&quot;Request to delete productId:&quot; ++ attributes.uriParams.productId ++ &quot; received. calling process api&quot;]" />
@@ -775,7 +758,7 @@ output application/json
             </ee:message>
         </ee:transform>
     </flow>
-    <flow name="post:\orders:application\json:ecommerceSuiteExperienceApi-config">
+    <flow name="post:\orders:application\json:ecommerceSuiteExperienceApi-config" doc:id="be2c6a22-054b-48e8-955b-f34468148402">
         <logger level="INFO" message="#[&quot;Request received to place order. Calling process flow&quot;]" />
         <set-variable value="#[&quot;buyer&quot;]" doc:name="allowedRole" doc:id="780d0b6c-a37d-437b-982c-e7c6192b1921" variableName="allowedRole" />
         <flow-ref doc:name="jwtExtraction" doc:id="461b9acb-3d1b-4d7a-95fc-20119f116629" name="jwtExtraction" />
@@ -875,7 +858,7 @@ output application/json
 output application/json
 ---
 {
-	message:"payment failed due to some unexpected error.Make sure you provide correct details"
+	message:"payment failed due to some unexpected error. Make sure you provide correct details"
 }]]></ee:set-payload>
                     </ee:message>
                     <ee:variables>

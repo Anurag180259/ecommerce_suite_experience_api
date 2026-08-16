@@ -357,37 +357,43 @@ assert_expression_payload::main({payload: payload, attributes: attributes, vars:
 			</munit-tools:assert>
 		</munit:validation>
 	</munit:test>
-	<munit:test name="post:\admin\setup_alreadyRegistered" doc:id="ef68a65f-d989-4418-98e1-573737f7f957" expectedErrorType="HTTP:FORBIDDEN">
+	<munit:test name="post:\admin\setup_alreadyRegistered" doc:id="ef68a65f-d989-4418-98e1-573737f7f957">
+		<munit:enable-flow-sources >
+			<munit:enable-flow-source value="raiseError_mainFlow" />
+		</munit:enable-flow-sources>
 		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock POST/process/admin/setup" doc:id="35d9188a-02fa-48da-9149-c2e4a0246a1a" processor="http:request">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="1f56e1e7-d220-41e5-94a9-91793df9fe03" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-call flow="raiseError_request" />
+			</munit-tools:mock-when>
 			<munit:set-event doc:name="Set Input" doc:id="b7498ab2-ad2f-4a94-b442-c764ee6ecdbc" >
 				<munit:payload value="#[output application/json --- readUrl('classpath://postadminsetuphappyPath\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
 				<munit:attributes value="#[readUrl('classpath://postadminsetuphappyPath\set-event_attributes.dwl')]" />
 				<munit:variables >
 					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://postadminsetuphappyPath\set-event_variable_.dwl')]" />
+					<munit:variable key="mockStatusCode" value="403" />
 				</munit:variables>
 			</munit:set-event>
-			<munit-tools:mock-when doc:name="Mock POST/process/admin/setup" doc:id="35d9188a-02fa-48da-9149-c2e4a0246a1a" processor="http:request" >
-				<munit-tools:with-attributes >
-					<munit-tools:with-attribute whereValue="1f56e1e7-d220-41e5-94a9-91793df9fe03" attributeName="doc:id" />
-				</munit-tools:with-attributes>
-				<munit-tools:then-return >
-					<munit-tools:payload value="#[null]" />
-					<munit-tools:error typeId="HTTP:FORBIDDEN" />
-					<munit-tools:variables >
-						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://postadminsetuphappyPath\mock_variable_.dwl')]" />
-					</munit-tools:variables>
-				</munit-tools:then-return>
-			</munit-tools:mock-when>
 		</munit:behavior>
-		<munit:execution >
-			<flow-ref doc:name="Flow-ref to post:\admin\setup:application\json:ecommerceSuiteExperienceApi-config" doc:id="aa7ae18a-5de5-4815-b097-e881ab28e4fb" name="post:\admin\setup:application\json:ecommerceSuiteExperienceApi-config" />
+		<munit:execution>
+			<try doc:name="Try" doc:id="4025188c-17bb-4352-8be7-3264a342c297" >
+				<flow-ref doc:name="Flow-ref to post:\admin\setup:application\json:ecommerceSuiteExperienceApi-config" doc:id="aa7ae18a-5de5-4815-b097-e881ab28e4fb" name="post:\admin\setup:application\json:ecommerceSuiteExperienceApi-config" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="366112c0-3e6c-48b9-87c5-e60b3bb54f5e" />
+				</error-handler>
+			</try>
 		</munit:execution>
 		<munit:validation >
-			<munit-tools:assert doc:name="Assert payload" doc:id="8b752a0c-24f8-4a16-902d-f7a1953c17ed" message="The payload does not match" >
-				<munit-tools:that ><![CDATA[#[{
+			<munit-tools:assert doc:name="Assert expression" doc:id="4e4deaf9-de51-45f4-b44f-675d8853ae64" >
+				<munit-tools:that ><![CDATA[#[import * from dw::test::Asserts 
+ ---
+payload must equalTo({
 	message:"Admin is already registered. you cannot register as an admin"
-}]]]></munit-tools:that>
+})]]]></munit-tools:that>
 			</munit-tools:assert>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="7af0c64c-17d3-4405-9f0c-82ce8a69d0e5" expression="#[vars.httpStatus]" is="#[MunitTools::equalTo(403)]"/>
 		</munit:validation>
 	</munit:test>
 	<munit:test name="post:\stores\(storeId)\products_happyPath" doc:id="e03680c9-fcb5-448b-ba70-19b083658747">
@@ -651,43 +657,6 @@ assert_expression_payload::main({payload: payload, attributes: attributes, vars:
 			</munit-tools:assert>
 		</munit:validation>
 	</munit:test>
-	<munit:test name="get:\products\(productId)_productNotFound" doc:id="063af2f2-1a74-4731-9c12-124db79048f1">
-		<munit:behavior >
-			<munit-tools:mock-when doc:name="Mock when" doc:id="035702f5-22ce-47dc-bc54-ff696bd2dc6c" processor="http:request">
-				<munit-tools:with-attributes >
-					<munit-tools:with-attribute whereValue="3d23e52b-2311-4782-9422-5eb4ac6d68ba" attributeName="doc:id" />
-				</munit-tools:with-attributes>
-				<munit-tools:then-return >
-					<munit-tools:error typeId="HTTP:NOT_FOUND" />
-				</munit-tools:then-return>
-			</munit-tools:mock-when>
-			<munit:set-event doc:name="Set Input" doc:id="ecec2b76-3dcf-42ff-931f-2d73b1113b58" >
-				<munit:payload value="#[readUrl('classpath://getproductsproductIdhappyPath\set-event_payload.dwl')]" encoding="UTF-8" />
-				<munit:attributes value="#[readUrl('classpath://getproductsproductIdhappyPath\set-event_attributes.dwl')]" />
-				<munit:variables >
-					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://getproductsproductIdhappyPath\set-event_variable_.dwl')]" />
-				</munit:variables>
-			</munit:set-event>
-		</munit:behavior>
-		<munit:execution>
-			<try doc:name="Try" doc:id="fe446b0b-4d1d-4755-949b-4a597c785131" >
-				<flow-ref doc:name="Flow-ref to get:\products\(productId):ecommerceSuiteExperienceApi-config" doc:id="ff96aa87-6def-48d3-93e4-56edcd513948" name="get:\products\(productId):ecommerceSuiteExperienceApi-config" />
-				<error-handler >
-					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="61585f14-a82e-47f1-bbd3-814f2505b01d" type="HTTP:NOT_FOUND"/>
-				</error-handler>
-			</try>
-		</munit:execution>
-		<munit:validation >
-			<munit-tools:assert doc:name="Assert expression" doc:id="be43f7ab-e7dd-4a03-93e0-cfe4f21e3e30" >
-				<munit-tools:that ><![CDATA[#[import * from dw::test::Asserts
----
-payload must equalTo({
- message:"product with productId: " ++ vars.productId as String ++ " not found"
-})]]]></munit-tools:that>
-			</munit-tools:assert>
-			<munit-tools:assert-that doc:name="Assert that" doc:id="db51ba69-f291-49d6-a599-5c049ca8a306" expression="#[vars.httpStatus]" is="#[MunitTools::equalTo(404)]"/>
-		</munit:validation>
-	</munit:test>
 	<munit:test name="delete:\products\(productId)_happyPath" doc:id="8d2c3945-40e6-4f9f-b2ed-4f0176c93698">
 		<munit:behavior >
 			<munit-tools:mock-when doc:name="Mock DELETE/process/product/{productId}" doc:id="6be5ec82-0ab4-4428-ad2c-a3aab8fd8e53" processor="http:request">
@@ -770,7 +739,7 @@ assert_expression_payload::main({payload: payload, attributes: attributes, vars:
 			<munit-tools:assert-equals doc:name="httpStatus" doc:id="0038c40c-b2f9-4403-ab14-de5d4973180e" actual="#[vars.httpStatus]" expected="#[403]" />
 		</munit:validation>
 	</munit:test>
-	<munit:test name="globalErrorHandler_ownershipCheck_processApi" doc:id="1a489468-c4ef-4c24-9079-d128f616e797" >
+	<munit:test name="globalErrorHandler_ownershipCheck_processApi" doc:id="1a489468-c4ef-4c24-9079-d128f616e797">
 		<munit:enable-flow-sources >
 			<munit:enable-flow-source value="raiseError_mainFlow" />
 		</munit:enable-flow-sources>
@@ -804,6 +773,285 @@ assert_expression_payload::main({payload: payload, attributes: attributes, vars:
 		<munit:validation >
 			<munit-tools:assert-equals doc:name="Assert equals" doc:id="f6fe2f6d-3507-4610-93fc-01a8e1d3a504" actual="#[payload]" expected='#[{&#10;	Message:"You are not allowed to access this resource"&#10;}]'/>
 			<munit-tools:assert-equals doc:name="Assert equals" doc:id="68ddc8d5-3394-44d9-98df-874d1e7d09bf" actual="#[vars.httpStatus]" expected="#[403]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="globalErrorHanlder_notFound_processApi" doc:id="b6aaedcb-5257-41eb-963f-9ffeee35e12b">
+		<munit:enable-flow-sources >
+			<munit:enable-flow-source value="raiseError_mainFlow" />
+		</munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="1edf548f-f522-4914-a728-58692b8c15b4" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="c566ef90-75eb-4701-9ba0-926627f27779" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:FORBIDDEN" />
+				</munit-tools:then-return>
+				
+				<munit-tools:then-call flow="raiseError_request" />
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="bffe1ac4-32a3-4e51-b171-3685eb6dab57" >
+				<munit:payload value="#[readUrl('classpath://deleteproductsproductIdhappyPath\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://deleteproductsproductIdhappyPath\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://deleteproductsproductIdhappyPath\set-event_variable_.dwl')]" />
+					<munit:variable key="mockStatusCode" value="404" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="be6d26a1-c086-4d76-9973-6d19ed649e78" >
+				<flow-ref doc:name="Flow-ref to delete:\products\(productId):ecommerceSuiteExperienceApi-config" doc:id="7e003a09-2147-4376-9511-3fc627f6f949" name="delete:\products\(productId):ecommerceSuiteExperienceApi-config" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="fc13855f-fee6-4468-953b-74d7f8dc0702" />
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="payload" doc:id="df1a63ee-8e12-4abb-bf03-a604f679abb9" actual="#[payload]" expected='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	message:"Requested resource not found"&#10;}]' />
+			<munit-tools:assert-equals doc:name="httpStatus" doc:id="993bcbea-8e8c-4341-813f-299b3159ac8b" actual="#[vars.httpStatus as Number]" expected="#[404]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="post:\orders_notInStock" doc:id="ff1c3512-16b3-4389-950f-f41b43db862b">
+		<munit:enable-flow-sources >
+			<munit:enable-flow-source value="raiseError_mainFlow" />
+		</munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="946c7f2e-985c-4333-afe9-37219378ec09" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="bb9f882f-4f9d-4e29-871d-cc3ba951a560" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-call flow="raiseError_request" />
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Event" doc:id="865d4516-34ea-42e3-a7dd-ef66a9e0bb42" >
+				<munit:payload value='#[{&#10;	deliveryPincode:"100001"&#10;}]' />
+				<munit:attributes value='#[{&#10;	headers:{&#10;		authorization:"Bearer eyJhbGciOiAiSFMyNTYiLCJ0eXAiOiAiSldUIn0.eyJ1c2VySWQiOiAiQi02MDQ5MGMiLCJpc3MiOiAiZWNvbW1lcmNlX3N1aXRlX2JhY2tlbmQiLCJhdWQiOiAiZWNvbW1lcmNlX2FwaSIsImlhdCI6IDE3ODY2MDQwOTIsImV4cCI6IDE3ODY2MDc2OTIsInJvbGUiOiAiYnV5ZXIifQ.fMbj8xv8HVkjW7QLjLmNSgVamQXbAw6WhXeoQaXWy_8"&#10;	}&#10;}]' />
+				<munit:variables >
+					<munit:variable key="mockStatusCode" value="422" />
+					<munit:variable key="mockPayload" value='#[{"reason":"notInStock","productId":"P-ah56a7"}]' />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="473b9cc7-7e6e-40a2-9c5e-f905e77a5680" >
+				<flow-ref doc:name="post:\orders:application\json:ecommerceSuiteExperienceApi-config" doc:id="84bbac59-9ace-4325-bea4-550839d3f7c4" name="post:\orders:application\json:ecommerceSuiteExperienceApi-config" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="2e2b68ba-6f3c-4f68-b32a-6abd61e1b8c7" />
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="df4b8ce3-de4c-4157-80c2-420f431ccbbd" actual="#[payload]" expected='#[{&#10;	message:"The required quantity of this product is not in stock",&#10;	productId:"P-ah56a7"&#10;}]'/>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="a53282ec-6f2c-493e-9134-1e7b4c820f58" is="#[MunitTools::equalTo(422)]" expression="#[vars.httpStatus]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="post:\orders_paymentFailed" doc:id="49853c73-c02f-456a-95d5-e0864e2a2898">
+		
+		<munit:enable-flow-sources>
+			
+			<munit:enable-flow-source value="raiseError_mainFlow" />
+		</munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="ddb1191a-6459-4001-ba0d-0319aae0cf44" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="bb9f882f-4f9d-4e29-871d-cc3ba951a560" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				
+				<munit-tools:then-call flow="raiseError_request" />
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Event" doc:id="f0fc96f8-dd4e-47ac-8648-079d75919f39" >
+				<munit:payload value='#[{&#10;	deliveryPincode:"100001"&#10;}]' />
+				<munit:attributes value='#[{&#10;	headers:{&#10;		authorization:"Bearer eyJhbGciOiAiSFMyNTYiLCJ0eXAiOiAiSldUIn0.eyJ1c2VySWQiOiAiQi02MDQ5MGMiLCJpc3MiOiAiZWNvbW1lcmNlX3N1aXRlX2JhY2tlbmQiLCJhdWQiOiAiZWNvbW1lcmNlX2FwaSIsImlhdCI6IDE3ODY2MDQwOTIsImV4cCI6IDE3ODY2MDc2OTIsInJvbGUiOiAiYnV5ZXIifQ.fMbj8xv8HVkjW7QLjLmNSgVamQXbAw6WhXeoQaXWy_8"&#10;	}&#10;}]' />
+				<munit:variables >
+					<munit:variable key="mockStatusCode" value="422" />
+					<munit:variable key="mockPayload" value='#[{"reason":"paymentFailed"}]' />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="5a4c1889-dc22-4296-97a8-b8d69131bf88" >
+				<flow-ref doc:name="post:\orders:application\json:ecommerceSuiteExperienceApi-config" doc:id="eed6d395-77e3-4311-bd20-298ef893b715" name="post:\orders:application\json:ecommerceSuiteExperienceApi-config" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="8c0167bf-f892-4978-9b87-05205ab44920" />
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="3926292b-c8e2-4ad0-a24b-fdccc0f051b9" actual="#[payload]" expected='#[{&#10;	message:"payment failed due to some unexpected error. Make sure you provide correct details"&#10;}]' />
+			<munit-tools:assert-that doc:name="Assert that" doc:id="ff40b77f-149e-41fc-93ca-91039a42a655" is="#[MunitTools::equalTo(422)]" expression="#[vars.httpStatus]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="post:\orders_notDeliverable" doc:id="f57c7ae5-daf4-47d6-a721-0cfa71cce351">
+		
+		<munit:enable-flow-sources>
+			
+			<munit:enable-flow-source value="raiseError_mainFlow" />
+		</munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="d38c69cc-a7c8-42f3-905e-6a639ebd10d1" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="bb9f882f-4f9d-4e29-871d-cc3ba951a560" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				
+				<munit-tools:then-call flow="raiseError_request" />
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Event" doc:id="1d7dfa43-ebb4-4f46-abad-7f3ef06f7dfe" >
+				<munit:payload value='#[{&#10;	deliveryPincode:"100001"&#10;}]' />
+				<munit:attributes value='#[{&#10;	headers:{&#10;		authorization:"Bearer eyJhbGciOiAiSFMyNTYiLCJ0eXAiOiAiSldUIn0.eyJ1c2VySWQiOiAiQi02MDQ5MGMiLCJpc3MiOiAiZWNvbW1lcmNlX3N1aXRlX2JhY2tlbmQiLCJhdWQiOiAiZWNvbW1lcmNlX2FwaSIsImlhdCI6IDE3ODY2MDQwOTIsImV4cCI6IDE3ODY2MDc2OTIsInJvbGUiOiAiYnV5ZXIifQ.fMbj8xv8HVkjW7QLjLmNSgVamQXbAw6WhXeoQaXWy_8"&#10;	}&#10;}]' />
+				<munit:variables >
+					<munit:variable key="mockStatusCode" value="422" />
+					<munit:variable key="mockPayload" value='#[{"reason":"notDeliverable"}]' />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="3f881a4a-2e9d-42f3-9df3-dc4cf5e37df0" >
+				<flow-ref doc:name="post:\orders:application\json:ecommerceSuiteExperienceApi-config" doc:id="5a22bbf0-b34b-4ca0-a4bb-b2b2c0d2bda6" name="post:\orders:application\json:ecommerceSuiteExperienceApi-config" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="74e27c12-a8ae-4491-a414-2b867b7e698d" />
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="1a9f3bdb-985f-472c-9ce7-ffb4b615c300" actual="#[payload]" expected='#[{&#10;	message:"order cannot be delivered at this pincode"&#10;}]' />
+			<munit-tools:assert-that doc:name="Assert that" doc:id="7cd5eda1-e21c-416e-8fbf-da9be2bfbd79" is="#[MunitTools::equalTo(422)]" expression="#[vars.httpStatus]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="post:\orders_emptyCart" doc:id="fb5690d5-3713-44bf-b780-860522f9c757">
+		
+		<munit:enable-flow-sources>
+			
+			<munit:enable-flow-source value="raiseError_mainFlow" />
+		</munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="dacd98b5-5dc6-463a-93d7-094236bb2547" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="bb9f882f-4f9d-4e29-871d-cc3ba951a560" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				
+				<munit-tools:then-call flow="raiseError_request" />
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Event" doc:id="6ac0744f-4733-40df-9ea4-a8dee3b3fe3c" >
+				<munit:payload value='#[{&#10;	deliveryPincode:"100001"&#10;}]' />
+				<munit:attributes value='#[{&#10;	headers:{&#10;		authorization:"Bearer eyJhbGciOiAiSFMyNTYiLCJ0eXAiOiAiSldUIn0.eyJ1c2VySWQiOiAiQi02MDQ5MGMiLCJpc3MiOiAiZWNvbW1lcmNlX3N1aXRlX2JhY2tlbmQiLCJhdWQiOiAiZWNvbW1lcmNlX2FwaSIsImlhdCI6IDE3ODY2MDQwOTIsImV4cCI6IDE3ODY2MDc2OTIsInJvbGUiOiAiYnV5ZXIifQ.fMbj8xv8HVkjW7QLjLmNSgVamQXbAw6WhXeoQaXWy_8"&#10;	}&#10;}]' />
+				<munit:variables >
+					<munit:variable key="mockStatusCode" value="422" />
+					<munit:variable key="mockPayload" value='#[{"reason":"cartIsEmpty"}]' />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="c3255a49-dfd8-4195-a3fe-23112b7700d2" >
+				<flow-ref doc:name="post:\orders:application\json:ecommerceSuiteExperienceApi-config" doc:id="9a806f33-46f9-491e-bda8-40becbfc5bc3" name="post:\orders:application\json:ecommerceSuiteExperienceApi-config" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="fb4d0111-efbe-434c-954c-a5df84c930a6" />
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="f4c788ce-ea8b-4356-93a3-bd90e5477875" actual="#[payload]" expected='#[{&#10;	message:"Please provide a productId, Or add items to the cart to process order"&#10;}]' />
+			<munit-tools:assert-that doc:name="Assert that" doc:id="b6a933da-86c0-4844-a270-c048c3d33365" is="#[MunitTools::equalTo(422)]" expression="#[vars.httpStatus]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="post:\orders_productNotFound" doc:id="a6e290ba-1667-456d-a5a3-fded6892d68c" >
+		<munit:enable-flow-sources >
+			<munit:enable-flow-source value="raiseError_mainFlow" />
+		</munit:enable-flow-sources>
+		<munit:behavior>
+			<munit-tools:mock-when doc:name="POST/process/orders" doc:id="03ae3a3f-329d-4757-824d-bc7b32850a30" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="bb9f882f-4f9d-4e29-871d-cc3ba951a560" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-call flow="raiseError_request" />
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Event" doc:id="5d54f79a-483b-42de-8e27-f6d7f609555e" >
+				<munit:payload value='#[{&#10;	deliveryPincode:"100001"&#10;}]' />
+				<munit:attributes value='#[{&#10;	headers:{&#10;		authorization:"Bearer eyJhbGciOiAiSFMyNTYiLCJ0eXAiOiAiSldUIn0.eyJ1c2VySWQiOiAiQi02MDQ5MGMiLCJpc3MiOiAiZWNvbW1lcmNlX3N1aXRlX2JhY2tlbmQiLCJhdWQiOiAiZWNvbW1lcmNlX2FwaSIsImlhdCI6IDE3ODY2MDQwOTIsImV4cCI6IDE3ODY2MDc2OTIsInJvbGUiOiAiYnV5ZXIifQ.fMbj8xv8HVkjW7QLjLmNSgVamQXbAw6WhXeoQaXWy_8"&#10;	}&#10;}]' />
+				<munit:variables >
+					<munit:variable key="mockStatusCode" value="404" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="c1314968-ee5d-4ecd-95d1-2b1df37582d1" >
+				<flow-ref doc:name="post:\orders:application\json:ecommerceSuiteExperienceApi-config" doc:id="6caa3cbc-3e13-4289-82df-69e3779a8b73" name="post:\orders:application\json:ecommerceSuiteExperienceApi-config" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="c81356e4-c80e-4b7d-a7ea-7ed18eeea4bb" />
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="payload" doc:id="5d3762d7-cad6-41fd-a7d1-39ac0b3bb0f6" actual="#[payload]" expected='#[{&#10;	message:"Requested resource not found"&#10;}]'/>
+			<munit-tools:assert-equals doc:name="httpStatus" doc:id="95d4f9e1-0a24-4550-9459-3ec78ede0766" actual="#[vars.httpStatus]" expected="#[404]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="post:\orders_noJwtToken" doc:id="51fa5aa2-06fb-4f86-883e-556a93c2e5a4" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="POST/process/orders" doc:id="7ec7b82d-6b3b-47a6-8ca2-5d34f9acb4dc" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="bb9f882f-4f9d-4e29-871d-cc3ba951a560" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APP:UNAUTHORIZED" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Event" doc:id="df49c8b6-1da7-431d-bb8f-d4bf0e30581e" >
+				<munit:payload value='#[{&#10;	deliveryPincode:"100001"&#10;}]' />
+				<munit:attributes value='#[{&#10;	headers:{&#10;		authorization:"Bearer eyJhbGciOiAiSFMyNTYiLCJ0eXAiOiAiSldUIn0.eyJ1c2VySWQiOiAiQi02MDQ5MGMiLCJpc3MiOiAiZWNvbW1lcmNlX3N1aXRlX2JhY2tlbmQiLCJhdWQiOiAiZWNvbW1lcmNlX2FwaSIsImlhdCI6IDE3ODY2MDQwOTIsImV4cCI6IDE3ODY2MDc2OTIsInJvbGUiOiAiYnV5ZXIifQ.fMbj8xv8HVkjW7QLjLmNSgVamQXbAw6WhXeoQaXWy_8"&#10;	}&#10;}]' />
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="4ad19c22-1d9a-442b-ad27-5769c229abdc" >
+				<flow-ref doc:name="post:\orders:application\json:ecommerceSuiteExperienceApi-config" doc:id="354cacc8-f305-4166-ba16-0746d708774d" name="post:\orders:application\json:ecommerceSuiteExperienceApi-config" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="390e5a69-8e25-4861-90c7-3d63ca842f3c" />
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert expression" doc:id="f07a2d7a-1397-483b-8270-364b7339efb5" >
+				<munit-tools:that ><![CDATA[#[import * from dw::test::Asserts
+---
+payload must equalTo({
+	message:"Please provide a valid JWT Token"
+})]]]></munit-tools:that>
+			</munit-tools:assert>
+			<munit-tools:assert-equals doc:name="httpStatus" doc:id="f6cf4d96-b380-4e98-a8ed-64ba54ffb536" actual="#[vars.httpStatus]" expected="#[401]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="post:\orders_wrongRole" doc:id="42dee44f-851f-423d-b3c7-1c9b6b890955" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="POST/process/orders" doc:id="71d7e877-2c6b-490b-93c4-e3263200b962" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="bb9f882f-4f9d-4e29-871d-cc3ba951a560" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APP:FORBIDDEN" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Event" doc:id="aedca83e-ad07-4a31-9a89-2431dc541f90" >
+				<munit:payload value='#[{&#10;	deliveryPincode:"100001"&#10;}]' />
+				<munit:attributes value='#[{&#10;	headers:{&#10;		authorization:"Bearer eyJhbGciOiAiSFMyNTYiLCJ0eXAiOiAiSldUIn0.eyJ1c2VySWQiOiAiQi02MDQ5MGMiLCJpc3MiOiAiZWNvbW1lcmNlX3N1aXRlX2JhY2tlbmQiLCJhdWQiOiAiZWNvbW1lcmNlX2FwaSIsImlhdCI6IDE3ODY2MDQwOTIsImV4cCI6IDE3ODY2MDc2OTIsInJvbGUiOiAiYnV5ZXIifQ.fMbj8xv8HVkjW7QLjLmNSgVamQXbAw6WhXeoQaXWy_8"&#10;	}&#10;}]' />
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="93453b3d-1067-4405-8314-ff25acf23b43" >
+				<flow-ref doc:name="post:\orders:application\json:ecommerceSuiteExperienceApi-config" doc:id="962e1e1e-3649-45c6-abae-234f70824003" name="post:\orders:application\json:ecommerceSuiteExperienceApi-config" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="18c937b6-d286-43b1-b23e-95ca87b0dfd8" />
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert expression" doc:id="fc4227be-8a11-4aec-8e51-74c91a286115" >
+				<munit-tools:that ><![CDATA[#[import * from dw::test::Asserts
+---
+payload must equalTo({
+	message:"You are not allowed to access this resource",
+	info:"Wrong Role"
+})]]]></munit-tools:that>
+			</munit-tools:assert>
+			<munit-tools:assert-equals doc:name="httpStatus" doc:id="46b6715b-ae7d-45d4-98ff-a4f4a8cbdf35" actual="#[vars.httpStatus]" expected="#[403]" />
 		</munit:validation>
 	</munit:test>
 
