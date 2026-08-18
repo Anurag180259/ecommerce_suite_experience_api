@@ -51,6 +51,16 @@ uses:
           application/json:
               library.postProductRequestBody
       get:
+  /admin:
+    get:
+      securedBy: [library.jwt]
+      queryParameters:
+        verificationStatus:
+          type: string
+          enum: [verified, unverified, rejected]
+  /seller:
+    get:
+      securedBy: [library.jwt]
 
 /products:
   get:

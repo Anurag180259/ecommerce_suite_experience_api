@@ -6,10 +6,10 @@
     </http:request-config>
     <configuration-properties doc:name="Configuration properties" doc:id="db06031c-b6b3-4bbf-a6a2-75bdc25f4bd0" file="configuration.properties" />
     <configuration doc:name="Configuration" doc:id="132b9289-336b-4194-93ba-3b281f855650" defaultErrorHandler-ref="globalErrorHandlerError_Handler" />
-    <http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="02e7f244-e082-49a1-b7cd-428843a4aaa9" >
-		<http:listener-connection host="0.0.0.0" port="${http.port}" />
-	</http:listener-config>
-	<flow name="ecommerceSuiteExperienceApi-main">
+    <http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="02e7f244-e082-49a1-b7cd-428843a4aaa9">
+        <http:listener-connection host="0.0.0.0" port="${http.port}" />
+    </http:listener-config>
+    <flow name="ecommerceSuiteExperienceApi-main">
         <http:listener config-ref="HTTP_Listener_config" path="/exp/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
                 <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
@@ -145,12 +145,12 @@ output application/json
         </ee:transform>
         <error-handler>
             <on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="72cd20e7-fdc7-4ed8-9b8d-f62e591a3b3d" type="HTTP:NOT_FOUND">
-				<set-variable value="404" doc:name="httpStatus" doc:id="c71b53e0-f146-48fe-b4a0-a1e205758aec" variableName="httpStatus" />
-				<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	message:"PROVIDE CORRECT EMAIL"&#10;}]' doc:name="Set Payload" doc:id="d62428c9-bdb5-4640-a870-ada28ad29c72" />
+                <set-variable value="404" doc:name="httpStatus" doc:id="c71b53e0-f146-48fe-b4a0-a1e205758aec" variableName="httpStatus" />
+                <set-payload value="#[%dw 2.0&#xA;output application/json&#xA;---&#xA;{&#xA; message:&quot;PROVIDE CORRECT EMAIL&quot;&#xA;}]" doc:name="Set Payload" doc:id="d62428c9-bdb5-4640-a870-ada28ad29c72" />
             </on-error-continue>
             <on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="5dca02c2-10ac-49e4-b634-00507bbb3b53" type="HTTP:UNAUTHORIZED">
                 <set-variable value="401" doc:name="httpStatus" doc:id="76ef6419-b53d-4099-b5cc-1ed8874b47bd" variableName="httpStatus" />
-                <set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	message:"PROVIDE CORRECT PASSWORD"&#10;}]' doc:name="Set Payload" doc:id="1c94f597-b9e8-410c-8e94-db015d7e99ea" />
+                <set-payload value="#[%dw 2.0&#xA;output application/json&#xA;---&#xA;{&#xA; message:&quot;PROVIDE CORRECT PASSWORD&quot;&#xA;}]" doc:name="Set Payload" doc:id="1c94f597-b9e8-410c-8e94-db015d7e99ea" />
             </on-error-continue>
         </error-handler>
     </flow>
@@ -169,23 +169,23 @@ output application/json
 } as Object {encoding: "UTF-8", mediaType: "application/json"}]]></ee:set-payload>
             </ee:message>
         </ee:transform>
-		<error-handler >
-			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="680da71e-1507-4994-b968-9e76b4e69a03" when="#[error.errorMessage.attributes.statusCode == 409]" >
-				<ee:transform doc:name="Transform Message" doc:id="8e0e1ff0-9509-47d0-8090-f6b3767b8758" >
-					<ee:message >
-						<ee:set-payload ><![CDATA[%dw 2.0
+        <error-handler>
+            <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="680da71e-1507-4994-b968-9e76b4e69a03" when="#[error.errorMessage.attributes.statusCode == 409]">
+                <ee:transform doc:name="Transform Message" doc:id="8e0e1ff0-9509-47d0-8090-f6b3767b8758">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {
 	message:"Email already registered. Please use a different email"
 }]]></ee:set-payload>
-					</ee:message>
-					<ee:variables >
-						<ee:set-variable variableName="httpStatus" ><![CDATA[409]]></ee:set-variable>
-					</ee:variables>
-				</ee:transform>
-			</on-error-propagate>
-		</error-handler>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[409]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
     </flow>
     <flow name="post:\stores:application\json:ecommerceSuiteExperienceApi-config">
         <logger level="INFO" message="request for adding a store received. calling process api" />
@@ -220,15 +220,15 @@ output application/json
         <error-handler>
             <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="f2ef0fe6-8f34-4f98-9194-3586006e24b0" type="APP:UNAUTHORIZED">
                 <set-variable value="401" doc:name="httpStatus 401" doc:id="e3313607-af32-4b8b-9f76-bb1f99cfce5b" variableName="httpStatus" />
-                <set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"Message":"Please provide valid JWT token"&#10;}]' doc:name="Set Payload" doc:id="eb9e16a3-8388-46e8-acef-5329c29a144e" />
+                <set-payload value="#[%dw 2.0&#xA;output application/json&#xA;---&#xA;{&#xA; &quot;Message&quot;:&quot;Please provide valid JWT token&quot;&#xA;}]" doc:name="Set Payload" doc:id="eb9e16a3-8388-46e8-acef-5329c29a144e" />
             </on-error-propagate>
             <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="3742ac93-eeb4-4358-ac84-ea76b247b71d" type="APP:FORBIDDEN">
                 <set-variable value="403" doc:name="httpStatus 403" doc:id="9e1241b4-2476-44b2-9d69-83a18483c888" variableName="httpStatus" />
-                <set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	message:"You are not allowed to post a store"&#10;}]' doc:name="Set Payload" doc:id="b3c19d6c-ac69-47cf-af0f-7fc0eeac6218" />
+                <set-payload value="#[%dw 2.0&#xA;output application/json&#xA;---&#xA;{&#xA; message:&quot;You are not allowed to post a store&quot;&#xA;}]" doc:name="Set Payload" doc:id="b3c19d6c-ac69-47cf-af0f-7fc0eeac6218" />
             </on-error-propagate>
             <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="2e1b8465-bc9b-467f-a90c-986e998df6ac" when="#[error.errorMessage.attributes.statusCode == 409]">
                 <set-variable value="409" doc:name="httpStatus 409" doc:id="f91d85f7-0a06-45db-8b2e-3862ef5300b7" variableName="httpStatus" />
-                <set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	message:"Store name is already registered. Please use a different name"&#10;}]' doc:name="Set Payload" doc:id="2397e110-6bec-47b1-ac68-6a689dce91ed" />
+                <set-payload value="#[%dw 2.0&#xA;output application/json&#xA;---&#xA;{&#xA; message:&quot;Store name is already registered. Please use a different name&quot;&#xA;}]" doc:name="Set Payload" doc:id="2397e110-6bec-47b1-ac68-6a689dce91ed" />
             </on-error-propagate>
         </error-handler>
     </flow>
@@ -283,23 +283,23 @@ output application/json
         </ee:transform>
         <error-handler>
             <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="f6cf60de-e8fe-44b7-a6b3-506995d28a12" when="#[error.errorMessage.attributes.statusCode == 403]">
-                <set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;403]" doc:name="httpStatus 403" doc:id="b8c65471-5688-4f9c-8b21-a07007ab6bdb" variableName="httpStatus" />
-                <set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	message:"Admin is already registered. you cannot register as an admin"&#10;}]' doc:name="Set Payload" doc:id="45d5513c-2dc5-46fa-915b-11ff5be488c5" />
+                <set-variable value="#[%dw 2.0&#xA;output application/json&#xA;---&#xA;403]" doc:name="httpStatus 403" doc:id="b8c65471-5688-4f9c-8b21-a07007ab6bdb" variableName="httpStatus" />
+                <set-payload value="#[%dw 2.0&#xA;output application/json&#xA;---&#xA;{&#xA; message:&quot;Admin is already registered. you cannot register as an admin&quot;&#xA;}]" doc:name="Set Payload" doc:id="45d5513c-2dc5-46fa-915b-11ff5be488c5" />
             </on-error-propagate>
         </error-handler>
     </flow>
     <flow name="post:\stores\(storeId)\products:application\json:ecommerceSuiteExperienceApi-config">
         <logger level="INFO" doc:name="Logger" doc:id="e3e59179-4a0c-44ae-895a-10d291f4ec2b" message="#[&quot;Request to add new Product in the store &quot; ++ attributes.uriParams.storeId]" />
-		<set-variable value="#[attributes.uriParams.storeId]" doc:name="storeId" doc:id="bbb7fa3c-867e-4070-81d4-9d33ae787b06" variableName="storeId" />
+        <set-variable value="#[attributes.uriParams.storeId]" doc:name="storeId" doc:id="bbb7fa3c-867e-4070-81d4-9d33ae787b06" variableName="storeId" />
         <set-variable value="#[&quot;seller&quot;]" doc:name="allowedRole" doc:id="0949e47c-1d95-4751-aeb8-3bfacfe326d7" variableName="allowedRole" />
         <flow-ref doc:name="jwtExtraction" doc:id="4deccd29-ae1f-46ee-8239-ef76d2ac0eec" name="jwtExtraction" />
         <http:request method="POST" doc:name="POST/stores/{storeId}/products" doc:id="4013fc62-03e7-4f81-9f80-b2a32727ca9a" config-ref="HTTP_Request_configuration" path="/stores/{storeId}/products">
-            <http:headers ><![CDATA[#[output application/java
+            <http:headers><![CDATA[#[output application/java
 ---
 {
 	"x-user-id" : vars.jwtClaims.userId
 }]]]></http:headers>
-			<http:uri-params><![CDATA[#[output application/java
+            <http:uri-params><![CDATA[#[output application/java
 ---
 {
 	"storeId" : attributes.uriParams.storeId
@@ -317,13 +317,13 @@ output application/json
             </ee:message>
         </ee:transform>
         <error-handler>
-            <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propogate" doc:id="b5e0c1d8-ef70-4d8b-aa23-e4f5e7559159" when='#[(error.errorMessage.attributes.statusCode == 403) and (error.errorMessage.payload.reason == "notAllowed")]'>
+            <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propogate" doc:id="b5e0c1d8-ef70-4d8b-aa23-e4f5e7559159" when="#[(error.errorMessage.attributes.statusCode == 403) and (error.errorMessage.payload.reason == &quot;notAllowed&quot;)]">
                 <set-payload value="#[%dw 2.0&#xA;output application/json&#xA;---&#xA;{&#xA; message:&quot;This store belongs to a different seller. You are not allowed to post products in this store&quot;,&#xA; storeId:vars.storeId&#xA;}]" doc:name="Set Payload" doc:id="07923109-ed5f-4ef9-b3cd-5b4393ab09c4" />
-				<set-variable value="403" doc:name="httpStatus 40" doc:id="34c30bc3-6b40-41cb-89e1-623b6227950a" variableName="httpStatus" />
+                <set-variable value="403" doc:name="httpStatus 40" doc:id="34c30bc3-6b40-41cb-89e1-623b6227950a" variableName="httpStatus" />
             </on-error-propagate>
-            <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="207cce49-ac7a-40e8-bcc7-9ea73fe41660" when='#[(error.errorMessage.attributes.statusCode == 403) and (error.errorMessage.payload.reason == "storeNotVerified")]'>
+            <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="207cce49-ac7a-40e8-bcc7-9ea73fe41660" when="#[(error.errorMessage.attributes.statusCode == 403) and (error.errorMessage.payload.reason == &quot;storeNotVerified&quot;)]">
                 <set-payload value="#[%dw 2.0&#xA;output application/json&#xA;---&#xA;{&#xA; message:&quot;Your store is not verified yet. You are not allowed to add a product&quot;&#xA;}]" doc:name="Set Payload" doc:id="3369ee9b-bb6d-4fe9-877b-32f839c63b1c" />
-				<set-variable value="403" doc:name="httpStatus 40" doc:id="f2c3e057-cc4a-4be5-9036-adf12f78dd42" variableName="httpStatus" />
+                <set-variable value="403" doc:name="httpStatus 40" doc:id="f2c3e057-cc4a-4be5-9036-adf12f78dd42" variableName="httpStatus" />
             </on-error-propagate>
         </error-handler>
     </flow>
@@ -967,59 +967,65 @@ payload map{
         </ee:transform>
     </flow>
     <flow name="patch:\orders\(orderId)\cancellation:ecommerceSuiteExperienceApi-config">
-        <logger level="INFO" message='#["Request received to cancel the orderId:" ++ attributes.uriParams.orderId]' />
-		<set-variable value="#[attributes.uriParams.orderId]" doc:name="orderId" doc:id="9ffb2d3e-a3db-4f2c-9da3-2ec63111d42d" variableName="orderId"/>
-		<set-variable value='#["buyer"]' doc:name="allowedRole" doc:id="982b5344-249b-4907-8cca-d201daa1cca1" variableName="allowedRole"/>
-		<flow-ref doc:name="jwtExtraction" doc:id="f5962b01-68ef-4075-a94a-4c2cc5da9614" name="jwtExtraction"/>
-		<http:request method="PATCH" doc:name="PATCH/process/orders/{orderId}/cancellation" doc:id="4a7f05ab-cabc-4d55-89b0-ff8d901417a9" config-ref="HTTP_Request_configuration" path="/orders/{orderId}/cancellation">
-			<http:body ><![CDATA[#[null]]]></http:body>
-			<http:headers ><![CDATA[#[output application/java
+        <logger level="INFO" message="#[&quot;Request received to cancel the orderId:&quot; ++ attributes.uriParams.orderId]" />
+        <set-variable value="#[attributes.uriParams.orderId]" doc:name="orderId" doc:id="9ffb2d3e-a3db-4f2c-9da3-2ec63111d42d" variableName="orderId" />
+        <set-variable value="#[&quot;buyer&quot;]" doc:name="allowedRole" doc:id="982b5344-249b-4907-8cca-d201daa1cca1" variableName="allowedRole" />
+        <flow-ref doc:name="jwtExtraction" doc:id="f5962b01-68ef-4075-a94a-4c2cc5da9614" name="jwtExtraction" />
+        <http:request method="PATCH" doc:name="PATCH/process/orders/{orderId}/cancellation" doc:id="4a7f05ab-cabc-4d55-89b0-ff8d901417a9" config-ref="HTTP_Request_configuration" path="/orders/{orderId}/cancellation">
+            <http:body><![CDATA[#[null]]]></http:body>
+            <http:headers><![CDATA[#[output application/java
 ---
 {
 	"x-user-id" : vars.jwtClaims.userId
 }]]]></http:headers>
-			<http:uri-params ><![CDATA[#[output application/java
+            <http:uri-params><![CDATA[#[output application/java
 ---
 {
 	"orderId" : attributes.uriParams.orderId
 }]]]></http:uri-params>
-		</http:request>
-		<ee:transform doc:name="Transform Message" doc:id="515d7f48-cfd3-4912-93ba-5beb69ad3d88" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
+        </http:request>
+        <ee:transform doc:name="Transform Message" doc:id="515d7f48-cfd3-4912-93ba-5beb69ad3d88">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {
 	message:"Order cancelled",
 	orderId:vars.orderId
 }]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
+            </ee:message>
+        </ee:transform>
     </flow>
     <flow name="get:\orders\(orderId):ecommerceSuiteExperienceApi-config">
-        <logger level="INFO" message='#["Request received to fetch orders by orderId:" ++ attributes.uriParams.orderId]' />
-		<set-variable value='#["Buyer"]' doc:name="allowedRole" doc:id="8ec2d192-900f-42ef-b1cf-58f134e10743" variableName="allowedRole"/>
-		<flow-ref doc:name="jwtExtraction" doc:id="71c524e7-78eb-46cb-832d-169ec16eddcc" name="jwtExtraction"/>
-		<http:request method="GET" doc:name="GET/orders/{orderId}" doc:id="09d896cc-9979-4c27-91cf-1a1192a81d80" config-ref="HTTP_Request_configuration" path="/orders/{orderId}">
-			<http:body ><![CDATA[#[null]]]></http:body>
-			<http:headers ><![CDATA[#[output application/java
+        <logger level="INFO" message="#[&quot;Request received to fetch orders by orderId:&quot; ++ attributes.uriParams.orderId]" />
+        <set-variable value="#[&quot;Buyer&quot;]" doc:name="allowedRole" doc:id="8ec2d192-900f-42ef-b1cf-58f134e10743" variableName="allowedRole" />
+        <flow-ref doc:name="jwtExtraction" doc:id="71c524e7-78eb-46cb-832d-169ec16eddcc" name="jwtExtraction" />
+        <http:request method="GET" doc:name="GET/orders/{orderId}" doc:id="09d896cc-9979-4c27-91cf-1a1192a81d80" config-ref="HTTP_Request_configuration" path="/orders/{orderId}">
+            <http:body><![CDATA[#[null]]]></http:body>
+            <http:headers><![CDATA[#[output application/java
 ---
 {
 	"x-user-id" : vars.jwtClaims.userId
 }]]]></http:headers>
-			<http:uri-params ><![CDATA[#[output application/java
+            <http:uri-params><![CDATA[#[output application/java
 ---
 {
 	"orderId" : attributes.uriParams.orderId
 }]]]></http:uri-params>
-		</http:request>
-		<ee:transform doc:name="Transform Message" doc:id="09392870-2e01-443b-b3ea-d02dc32507c2" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
+        </http:request>
+        <ee:transform doc:name="Transform Message" doc:id="09392870-2e01-443b-b3ea-d02dc32507c2">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 payload - ("userId") - ("orderItems") ++ {orderItems: payload.orderItems map(item)->(item - "storeId")}]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\stores\admin:ecommerceSuiteExperienceApi-config">
+        <logger level="INFO" message="get:\stores\admin:ecommerceSuiteExperienceApi-config" />
+    </flow>
+    <flow name="get:\stores\seller:ecommerceSuiteExperienceApi-config">
+        <logger level="INFO" message="get:\stores\seller:ecommerceSuiteExperienceApi-config" />
     </flow>
 </mule>
