@@ -1273,6 +1273,43 @@ assert_expression_payload::main({payload: payload, attributes: attributes, vars:
 			</munit-tools:assert>
 		</munit:validation>
 	</munit:test>
+	<munit:test name="delete:\carts_happyPath" doc:id="6f5ba1e4-8791-40fb-a03f-aa3ff982b29e" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock DELETE/process/carts" doc:id="1d1038ce-d5cb-47b2-a560-c458200fcfcc" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="be366059-d41a-4ce8-a097-21e3e2454b8a" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[readUrl('classpath://deletecartshappyPath\mock_payload.dwl')]" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://deletecartshappyPath\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://deletecartshappyPath\mock_variable_.dwl')]" />
+						<munit-tools:variable key="jwtClaims" value="#[output application/json --- readUrl('classpath://deletecartshappyPath\mock_variable_1.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="temp" value="#[output application/java --- readUrl('classpath://deletecartshappyPath\mock_variable_2.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="allowedRole" value="#[output application/java --- readUrl('classpath://deletecartshappyPath\mock_variable_3.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="1bdff25a-c72e-422c-b447-6ceb8c3e4c11" >
+				<munit:payload value="#[readUrl('classpath://deletecartshappyPath\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://deletecartshappyPath\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://deletecartshappyPath\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to delete:\carts:ecommerceSuiteExperienceApi-config" doc:id="e75b2ba7-62e1-46e4-9485-91400088b18c" name="delete:\carts:ecommerceSuiteExperienceApi-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="bccf780b-3174-4259-ab5b-f3ba76ce1091" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import deletecartshappyPath::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
 
 
 </mule>
