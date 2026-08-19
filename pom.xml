@@ -85,13 +85,13 @@
 			<version>1.11.3</version>
 			<classifier>mule-plugin</classifier>
 		</dependency>
-		<dependency>
-			<groupId>297e1185-2a7e-4734-9d69-effb0bb9fbe9</groupId>
-			<artifactId>ecommerce_suite_experience_api</artifactId>
-			<version>1.0.18</version>
-			<classifier>raml</classifier>
-			<type>zip</type>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>297e1185-2a7e-4734-9d69-effb0bb9fbe9</groupId> -->
+<!-- 			<artifactId>ecommerce_suite_experience_api</artifactId> -->
+<!-- 			<version>1.0.18</version> -->
+<!-- 			<classifier>raml</classifier> -->
+<!-- 			<type>zip</type> -->
+<!-- 		</dependency> -->
 		<dependency>
 			<groupId>com.mulesoft.munit</groupId>
 			<artifactId>munit-runner</artifactId>
