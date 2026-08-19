@@ -1023,9 +1023,48 @@ payload - ("userId") - ("orderItems") ++ {orderItems: payload.orderItems map(ite
         </ee:transform>
     </flow>
     <flow name="get:\stores\admin:ecommerceSuiteExperienceApi-config">
-        <logger level="INFO" message="get:\stores\admin:ecommerceSuiteExperienceApi-config" />
+        <logger level="INFO" message='#["Request received to get stores list with verification status:" ++ attributes.queryParams.verificationStatus]' />
+		<set-variable value="#[attributes.queryParams.verificationStatus]" doc:name="verificationStatus" doc:id="c3d02133-2fc1-4d7c-96c7-bb49f9cfe918" variableName="status"/>
+		<set-variable value='#["admin"]' doc:name="allowedRole" doc:id="e791b723-1703-41d9-bb49-f4f3c1dac6b1" variableName="allowedRole"/>
+		<flow-ref doc:name="jwtExtraction" doc:id="9b67d250-3ed7-4ca1-ab20-bba8c8d576c9" name="jwtExtraction" />
+		<http:request method="GET" doc:name="GET/stores/admin" doc:id="afa95b70-0aeb-43f7-827e-84c4eda014cd" config-ref="HTTP_Request_configuration" path="/stores/admin">
+			<http:body ><![CDATA[#[null]]]></http:body>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"verificationStatus" : attributes.queryParams.verificationStatus
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="6c777fa9-46bb-4ee6-a570-eae213eda089" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	(vars.status) : payload map ($- "verificationStatus")
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
     </flow>
     <flow name="get:\stores\seller:ecommerceSuiteExperienceApi-config">
-        <logger level="INFO" message="get:\stores\seller:ecommerceSuiteExperienceApi-config" />
+        <logger level="INFO" message='#["Getting all the stores list for a seller by seller Id"]' />
+		<set-variable value='#["seller"]' doc:name="allowedRole" doc:id="61527696-fdad-4940-a8ae-bc8152b98441" variableName="allowedRole"/>
+		<flow-ref doc:name="jwtExtraction" doc:id="031749c4-ee74-400c-a70c-8271471777b1" name="jwtExtraction"/>
+		<http:request method="GET" doc:name="GET/process/stores/seller" doc:id="c05b8c14-4bba-46a9-a352-bce46b1228d8" config-ref="HTTP_Request_configuration" path="/stores/seller">
+			<http:body ><![CDATA[#[null]]]></http:body>
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"x-user-id" : vars.jwtClaims.userId
+}]]]></http:headers>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="2415f42a-ffda-4424-b3ab-bbb1d79e59bb" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
     </flow>
 </mule>
