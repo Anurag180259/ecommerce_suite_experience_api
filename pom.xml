@@ -32,6 +32,24 @@
 				<extensions>true</extensions>
 				<configuration>
 					<classifier>mule-application</classifier>
+					<cloudhub2Deployment>
+    					<uri>https://anypoint.mulesoft.com</uri>
+    					<provider>MC</provider>
+    					<environment>SANDBOX</environment>
+    					<target>Cloudhub-US-East-2</target>
+
+					    <muleVersion>4.12.2</muleVersion>
+					    <releaseChannel>EDGE</releaseChannel>
+					    <javaVersion>17</javaVersion>
+					
+					    <applicationName>ecommercesuite-experienceapi</applicationName>
+					
+					    <replicas>1</replicas>
+					    <vCores>0.1</vCores>
+					    <connectedAppClientId>${connectedAppClientId}</connectedAppClientId>
+						<connectedAppClientSecret>${connectedAppClientSecret}</connectedAppClientSecret>
+						<connectedAppGrantType>client_credentials</connectedAppGrantType>
+					</cloudhub2Deployment>
 				</configuration>
 			</plugin>
 			<plugin>
