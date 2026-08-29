@@ -13,7 +13,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		<app.runtime>4.12.2</app.runtime>
+		<app.runtime>4.9.0</app.runtime>
 		<mule.maven.plugin.version>4.10.1</mule.maven.plugin.version>
 		<munit.version>3.4.0</munit.version>
 	</properties>
@@ -42,7 +42,7 @@
 					    <releaseChannel>EDGE</releaseChannel>
 					    <javaVersion>17</javaVersion>
 					
-					    <applicationName>ecommercesuite-experienceapi</applicationName>
+					    <applicationName>ecommerce_suite_experience_api-1.0.0-SNAPSHOT-mule-application</applicationName>
 					
 					    <replicas>1</replicas>
 					    <vCores>0.1</vCores>
