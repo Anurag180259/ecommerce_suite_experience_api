@@ -22,7 +22,7 @@ jobs:
           cache: maven
 
       - name: Run Munit tests
-        run: mvn mule:deploy -Dmule.artifact=deployment/ecommerce_suite_experience_api-1.0.0-SNAPSHOT-mule-application.jar
+        run: mvn clean test
         env:
           connectedAppClientId: ${{ secrets.anypoint_connected_apps_client_id }}
           connectedAppClientSecret: ${{ secrets.anypoint_connected_apps_client_secret }}
