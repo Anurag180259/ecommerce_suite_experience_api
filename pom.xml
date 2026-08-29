@@ -35,7 +35,7 @@
 					<cloudhub2Deployment>
     					<uri>https://anypoint.mulesoft.com</uri>
     					<provider>MC</provider>
-    					<environment>SANDBOX</environment>
+    					<environment>Sandbox</environment>
     					<target>Cloudhub-US-East-2</target>
 
 					    <muleVersion>4.12.2</muleVersion>
