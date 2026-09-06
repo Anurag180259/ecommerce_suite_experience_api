@@ -38,7 +38,7 @@ The Experience API is designed as part of an **AI-powered e-commerce integration
 - Transforms and validates incoming requests before forwarding to the Process API
 - Formats responses for consistent consumption by the MCP Server
 
-For the complete system architecture, deployment topology, and AI integration details, refer to the [main project repository]([link-to-root-repo](https://github.com/Anurag180259/ecommerce_suite)).
+For the complete system architecture, deployment topology, and AI integration details, refer to the [main project repository](https://github.com/Anurag180259/ecommerce_suite).
 
 ---
 
