@@ -70,10 +70,10 @@ Create a `configuration.properties` file in `src/main/resources/`:
 1. Right-click on `src/main/resources/` folder
 2. Select **New** → **File**
 3. Name it `configuration.properties`
-4. Copy the content from [`configuration.properties.example`](./src/main/resources/configuration.properties.example)
+4. Copy the content from [`configuration.example.properties`](./src/main/resources/configuration.example.properties)
 5. Update the values according to your environment
 
-Refer to [`configuration.properties.example`](./src/main/resources/configuration.properties.example) for the complete structure and required properties.
+Refer to [`configuration.example.properties`](./src/main/resources/configuration.example.properties) for the complete structure and required properties.
 
 ### 3. Build the Project
 
@@ -105,7 +105,7 @@ All secured endpoints require JWT authentication via the `Authorization` header.
 **Token Structure:**
 ```json
 {
-  "userId": "USER123",
+  "userId": "B-a7d2c1",
   "iss": "ecommerce_suite_backend",
   "aud": "ecommerce_api",
   "iat": 1693478400,
@@ -133,7 +133,7 @@ Response:
 {
   "message": "Login Successful",
   "jwt": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "userId": "USER123"
+  "userId": "B-a7d2c1"
 }
 ```
 
@@ -162,18 +162,23 @@ Content-Type: application/json
 **Request Body:**
 ```json
 {
+  "firstName": "John",
+  "lastName": "Doe",
   "email": "newuser@example.com",
   "password": "securePassword123",
-  "firstName": "John",
-  "lastName": "Doe"
+  "city": "Pune",
+  "role": "buyer",
+  "phoneNo": "9876543210"
 }
 ```
+
+> `phoneNo` is optional. `role` must be either `seller` or `buyer`.
 
 **Response (201 Created):**
 ```json
 {
   "message": "Thank you for registering into our ECommerce Website",
-  "userId": "USER456",
+  "userId": "S-78a3c4",
   "jwt": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```
@@ -202,7 +207,7 @@ Content-Type: application/json
 {
   "message": "Login Successful",
   "jwt": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "userId": "USER123"
+  "userId": "B-a7d2c1"
 }
 ```
 
@@ -237,7 +242,7 @@ Content-Type: application/json
 ```json
 {
   "message": "Your store has been created successfully",
-  "storeId": "ST-7ef50f"
+  "storeId": "ST-4f2a1c"
 }
 ```
 
@@ -291,7 +296,7 @@ Authorization: Bearer <jwt-token>
 {
   "verified": [
     {
-      "storeId": "ST-7ef50f",
+      "storeId": "ST-4f2a1c",
       "storeName": "Electronics Plus",
       "gstin": "18AABCR5055K1Z0",
       "accountNumber": "1234567890123456",
@@ -315,7 +320,7 @@ Authorization: Bearer <jwt-token>
 ```json
 [
   {
-    "storeId": "ST-7ef50f",
+    "storeId": "ST-4f2a1c",
     "storeName": "Electronics Plus",
     "verificationStatus": "verified"
   }
@@ -348,11 +353,13 @@ Content-Type: application/json
 }
 ```
 
+> `subCategory` is optional. `details` has a maximum length of 255 characters.
+
 **Response (200 OK):**
 ```json
 {
   "message": "New product has been added successfully",
-  "productId": "PROD-123456"
+  "productId": "P-a4b231"
 }
 ```
 
@@ -386,7 +393,7 @@ GET /exp/products?brand=AudioTech&category=Electronics&minPrice=5000&maxPrice=10
   "products": {
     "inStock": [
       {
-        "productId": "PROD-123456",
+        "productId": "P-a4b231",
         "productName": "Wireless Headphones",
         "brand": "AudioTech",
         "price": 5299,
@@ -411,7 +418,7 @@ GET /exp/products/{productId}
 **Response (200 OK):**
 ```json
 {
-  "productId": "PROD-123456",
+  "productId": "P-a4b231",
   "productName": "Wireless Headphones",
   "brand": "AudioTech",
   "price": 5299,
@@ -435,13 +442,13 @@ GET /exp/stores/{storeId}/products
 **Response (200 OK):**
 ```json
 {
-  "storeId": "ST-7ef50f",
+  "storeId": "ST-4f2a1c",
   "storeName": "Electronics Plus",
   "noOfProducts": 15,
   "products": {
     "inStock": [
       {
-        "productId": "PROD-123456",
+        "productId": "P-a4b231",
         "productName": "Wireless Headphones",
         "price": 5299,
         "stock": 50
@@ -542,7 +549,7 @@ Content-Type: application/json
 **Request Body:**
 ```json
 {
-  "productId": "PROD-123456",
+  "productId": "P-a4b231",
   "quantity": 2
 }
 ```
@@ -551,7 +558,7 @@ Content-Type: application/json
 ```json
 {
   "message": "Product added to the cart",
-  "cartItemId": "CART-789012"
+  "cartItemId": "CT-a3f9b2"
 }
 ```
 
@@ -559,7 +566,7 @@ Or if product already in cart:
 ```json
 {
   "message": "Quantity of the product updated",
-  "cartItemId": "CART-789012"
+  "cartItemId": "CT-a3f9b2"
 }
 ```
 
@@ -580,7 +587,7 @@ Authorization: Bearer <jwt-token>
   "totalItems": 5,
   "products": [
     {
-      "productId": "PROD-123456",
+      "productId": "P-a4b231",
       "productName": "Wireless Headphones",
       "price": 5299,
       "inCartQuantity": 2
@@ -612,7 +619,7 @@ Content-Type: application/json
 ```json
 {
   "message": "Quantity successfully updated",
-  "cartItemId": "CART-789012",
+  "cartItemId": "CT-a3f9b2",
   "finalQuantity": 5
 }
 ```
@@ -631,7 +638,7 @@ Authorization: Bearer <jwt-token>
 ```json
 {
   "message": "Product removed from the cart",
-  "cartItemId": "CART-789012"
+  "cartItemId": "CT-a3f9b2"
 }
 ```
 
@@ -649,7 +656,7 @@ Authorization: Bearer <jwt-token>
 ```json
 {
   "message": "Your cart is empty now",
-  "userId": "USER123"
+  "userId": "B-a7d2c1"
 }
 ```
 
@@ -669,22 +676,20 @@ Content-Type: application/json
 **Request Body:**
 ```json
 {
-  "productId": "PROD-123456",
-  "quantity": 1,
   "deliveryPincode": "411001",
-  "paymentMethod": "card",
-  "paymentDetails": {
-    "cardNumber": "4111111111111111",
-    "cvv": "123",
-    "expiryDate": "12/25"
+  "product": {
+    "productId": "P-a4b231",
+    "quantity": 1
   }
 }
 ```
 
+> `product` is optional. If omitted, the order is placed for all items currently in the buyer's cart. `deliveryPincode` must be a 6-digit number. `productId` must follow the format `P-XXXXXX` (hex). `quantity` minimum is 1.
+
 **Response (200 OK):**
 ```json
 {
-  "orderId": "ORD-654321",
+  "orderId": "OD-7c4e1a",
   "expDeliveryDate": "2024-09-15",
   "totalOrderValue": 5299,
   "orderStatus": "confirmed",
@@ -692,7 +697,7 @@ Content-Type: application/json
   "paymentStatus": "successful",
   "listOfItems": [
     {
-      "productId": "PROD-123456",
+      "productId": "P-a4b231",
       "productName": "Wireless Headphones",
       "quantity": 1,
       "priceAtPurchase": 5299
@@ -720,7 +725,7 @@ Authorization: Bearer <jwt-token>
 ```json
 [
   {
-    "orderId": "ORD-654321",
+    "orderId": "OD-7c4e1a",
     "orderStatus": "confirmed",
     "expDeliveryDate": "2024-09-15",
     "paymentStatus": "successful",
@@ -729,8 +734,8 @@ Authorization: Bearer <jwt-token>
     "deliveryPincode": "411001",
     "items": [
       {
-        "orderItemId": "ORDI-123",
-        "productId": "PROD-123456",
+        "orderItemId": "OD-b1d4f3",
+        "productId": "P-a4b231",
         "productName": "Wireless Headphones",
         "quantity": 1,
         "priceAtPurchase": 5299
@@ -755,12 +760,12 @@ Authorization: Bearer <jwt-token>
 [
   {
     "storeName": "Electronics Plus",
-    "storeId": "ST-7ef50f",
+    "storeId": "ST-4f2a1c",
     "accountHolderName": "John Doe",
     "orderItems": [
       {
-        "orderItemsId": "ORDI-123",
-        "productId": "PROD-123456",
+        "orderItemsId": "OD-b1d4f3",
+        "productId": "P-a4b231",
         "productName": "Wireless Headphones",
         "quantity": 1,
         "priceAtPurchase": 5299
@@ -783,7 +788,7 @@ Authorization: Bearer <jwt-token>
 **Response (200 OK):**
 ```json
 {
-  "orderId": "ORD-654321",
+  "orderId": "OD-7c4e1a",
   "orderStatus": "confirmed",
   "expDeliveryDate": "2024-09-15",
   "paymentStatus": "successful",
@@ -792,7 +797,7 @@ Authorization: Bearer <jwt-token>
   "deliveryPincode": "411001",
   "orderItems": [
     {
-      "productId": "PROD-123456",
+      "productId": "P-a4b231",
       "productName": "Wireless Headphones",
       "quantity": 1,
       "priceAtPurchase": 5299
@@ -815,7 +820,7 @@ Authorization: Bearer <jwt-token>
 ```json
 {
   "message": "Order cancelled",
-  "orderId": "ORD-654321"
+  "orderId": "OD-7c4e1a"
 }
 ```
 
@@ -832,18 +837,22 @@ Content-Type: application/json
 **Request Body:**
 ```json
 {
+  "firstName": "Admin",
+  "lastName": "User",
   "email": "admin@example.com",
   "password": "adminPassword123",
-  "firstName": "Admin",
-  "lastName": "User"
+  "city": "Pune",
+  "phoneNo": "9876543210"
 }
 ```
+
+> `phoneNo` is optional.
 
 **Response (200 OK):**
 ```json
 {
   "Message": "Admin setup is completed successfully",
-  "userId": "ADMIN001"
+  "userId": "A-1c3d2f"
 }
 ```
 
