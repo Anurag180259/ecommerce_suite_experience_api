@@ -51,7 +51,7 @@ For the complete system architecture, deployment topology, and AI integration de
   - HTTP Connector
   - APIKit
 - **Process API**: Must be running and accessible at the configured host and port
-- **IDE**:Anypoint Studio/Anypoint Code Builder(Visual Studio Code Extension)
+- **IDE**: Anypoint Studio/Anypoint Code Builder(Visual Studio Code Extension)
 
 ---
 
