@@ -1051,7 +1051,7 @@ Use Postman or the built-in API Console (available at `/console/` after deployme
 
 ## Related Documentation
 
-- **RAML Specification:** `ecommercesuiteexperienceapi2.raml`
+- **RAML Specification:** [`ecommercesuiteexperienceapi2.raml`]()
 - **API Console:** Available at `/console/` path after deployment
 - **Main Project Repository:** [ecommerce_suite](https://github.com/Anurag180259/ecommerce_suite) — Contains overall architecture, deployment guide, and project scope
 
@@ -1065,4 +1065,4 @@ For issues, questions, or contributions, please refer to the main project reposi
 
 **Last Updated:** September 2026  
 **Version:** 1.0  
-**Maintained by:** [Your Name/Team]
+**Maintained by:** Anurag Ninave
