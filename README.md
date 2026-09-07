@@ -1051,7 +1051,7 @@ Use Postman or the built-in API Console (available at `/console/` after deployme
 
 ## Related Documentation
 
-- **RAML Specification:** [`ecommercesuiteexperienceapi2.raml`](./src/main/mule/resources/api)
+- **RAML Specification:** [`ecommercesuiteexperienceapi2.raml`](./src/main/resources/api)
 - **API Console:** Available at `/console/` path after deployment
 - **Main Project Repository:** [ecommerce_suite](https://github.com/Anurag180259/ecommerce_suite) — Contains overall architecture, deployment guide, and project scope
 
