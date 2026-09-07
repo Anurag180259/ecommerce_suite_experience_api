@@ -151,6 +151,37 @@ Authorization: Bearer <your-jwt-token>
 
 ## API Endpoints
 
+### Quick Reference
+
+| Method | Endpoint | Auth Required | Role | Description |
+|---|---|---|---|---|
+| `POST` | `/exp/auth/register` | No | — | Register a new user (buyer or seller) |
+| `POST` | `/exp/auth/login` | No | — | Login and receive a JWT token |
+| `POST` | `/exp/admin/setup` | No | — | One-time admin account setup |
+| `POST` | `/exp/stores` | Yes | Seller | Create a new store |
+| `PATCH` | `/exp/stores/{storeId}/verification` | Yes | Admin | Update store verification status |
+| `GET` | `/exp/stores/admin` | Yes | Admin | Get stores filtered by verification status |
+| `GET` | `/exp/stores/seller` | Yes | Seller | Get all stores owned by the authenticated seller |
+| `POST` | `/exp/stores/{storeId}/products` | Yes | Seller | Add a new product to a store |
+| `GET` | `/exp/stores/{storeId}/products` | No | — | Get all products in a store |
+| `GET` | `/exp/products` | No | — | Get products with optional filters |
+| `GET` | `/exp/products/{productId}` | No | — | Get a single product by ID |
+| `PATCH` | `/exp/products/{productId}` | Yes | Seller | Update product details |
+| `PATCH` | `/exp/products/{productId}/restock` | Yes | Seller | Update product stock quantity |
+| `DELETE` | `/exp/products/{productId}` | Yes | Seller | Delete a product |
+| `POST` | `/exp/carts` | Yes | Buyer | Add a product to cart |
+| `GET` | `/exp/carts` | Yes | Buyer | Get all items in the cart |
+| `PATCH` | `/exp/carts/{cartItemId}/quantity` | Yes | Buyer | Update quantity of a cart item |
+| `DELETE` | `/exp/carts/{cartItemId}` | Yes | Buyer | Remove a specific item from cart |
+| `DELETE` | `/exp/carts` | Yes | Buyer | Clear the entire cart |
+| `POST` | `/exp/orders` | Yes | Buyer | Place an order |
+| `GET` | `/exp/orders/buyer` | Yes | Buyer | Get all orders for the authenticated buyer |
+| `GET` | `/exp/orders/seller` | Yes | Seller | Get all orders for the authenticated seller |
+| `GET` | `/exp/orders/{orderId}` | Yes | Buyer | Get a specific order by ID |
+| `PATCH` | `/exp/orders/{orderId}/cancellation` | Yes | Buyer | Cancel an order |
+
+---
+
 ### Authentication
 
 #### Register User
@@ -174,11 +205,11 @@ Content-Type: application/json
 
 > `phoneNo` is optional. `role` must be either `seller` or `buyer`.
 
-**Response (201 Created):**
+**Response (200 OK):**
 ```json
 {
   "message": "Thank you for registering into our ECommerce Website",
-  "userId": "S-78a3c4",
+  "userId": "B-a7d2c1",
   "jwt": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```
@@ -300,11 +331,14 @@ Authorization: Bearer <jwt-token>
       "storeName": "Electronics Plus",
       "gstin": "18AABCR5055K1Z0",
       "accountNumber": "1234567890123456",
-      "accountHolderName": "John Doe"
+      "accountHolderName": "John Doe",
+      "userId": "S-78a3c4"
     }
   ]
 }
 ```
+
+> The response is grouped by the `verificationStatus` value passed as a query parameter. Fields inside each store object are returned directly from the Database API.
 
 ---
 
@@ -322,10 +356,16 @@ Authorization: Bearer <jwt-token>
   {
     "storeId": "ST-4f2a1c",
     "storeName": "Electronics Plus",
-    "verificationStatus": "verified"
+    "gstin": "18AABCR5055K1Z0",
+    "accountNumber": "1234567890123456",
+    "accountHolderName": "John Doe",
+    "verificationStatus": "verified",
+    "userId": "S-78a3c4"
   }
 ]
 ```
+
+> Fields are returned directly from the Database API with no transformation at the Process API layer.
 
 ---
 
@@ -393,20 +433,26 @@ GET /exp/products?brand=AudioTech&category=Electronics&minPrice=5000&maxPrice=10
   "products": {
     "inStock": [
       {
-        "productId": "P-a4b231",
+        "storeName": "Electronics Plus",
         "productName": "Wireless Headphones",
         "brand": "AudioTech",
+        "productId": "P-a4b231",
+        "storeId": "ST-4f2a1c",
+        "stock": 50,
         "price": 5299,
         "category": "Electronics",
         "subCategory": "Audio",
-        "rating": 4.5,
-        "noOfReviews": 120
+        "rating": 0.0,
+        "noOfReviews": 0,
+        "details": "High-quality wireless headphones with noise cancellation"
       }
     ],
     "notInStock": []
   }
 }
 ```
+
+> Products are grouped by stock status. `storeName` is included because the stored procedure joins `storeData` with `products`.
 
 ---
 
@@ -422,15 +468,17 @@ GET /exp/products/{productId}
   "productName": "Wireless Headphones",
   "brand": "AudioTech",
   "price": 5299,
-  "stock": 50,
   "category": "Electronics",
   "subCategory": "Audio",
-  "rating": 4.5,
-  "noOfReviews": 120,
   "details": "High-quality wireless headphones with noise cancellation",
+  "storeId": "ST-4f2a1c",
+  "rating": 0.0,
+  "noOfReviews": 0,
   "availability": true
 }
 ```
+
+> `stock` is not returned directly. Instead, `availability` is a computed boolean — `true` if stock is greater than 0, `false` otherwise.
 
 ---
 
@@ -443,15 +491,21 @@ GET /exp/stores/{storeId}/products
 ```json
 {
   "storeId": "ST-4f2a1c",
-  "storeName": "Electronics Plus",
+  "storeName": null,
   "noOfProducts": 15,
   "products": {
     "inStock": [
       {
         "productId": "P-a4b231",
         "productName": "Wireless Headphones",
+        "brand": "AudioTech",
+        "category": "Electronics",
+        "subCategory": "Audio",
         "price": 5299,
-        "stock": 50
+        "stock": 50,
+        "rating": 0.0,
+        "noOfReviews": 0,
+        "details": "High-quality wireless headphones with noise cancellation"
       }
     ],
     "OutOfStock": []
@@ -463,6 +517,8 @@ GET /exp/stores/{storeId}/products
   }
 }
 ```
+
+> `storeName` is `null` because the underlying query is `select * from products` which does not join `storeData`. Products are grouped by stock status.
 
 ---
 
@@ -589,13 +645,20 @@ Authorization: Bearer <jwt-token>
     {
       "productId": "P-a4b231",
       "productName": "Wireless Headphones",
+      "brand": "AudioTech",
+      "category": "Electronics",
+      "subCategory": "Audio",
       "price": 5299,
+      "stock": 50,
+      "details": "High-quality wireless headphones with noise cancellation",
       "inCartQuantity": 2
     }
   ],
   "totalCartValue": 10598
 }
 ```
+
+> `inCartQuantity` is the quantity in the cart. `storeId` is stripped from product details at the Experience API layer. `totalCartValue` is computed as the sum of `inCartQuantity * price` for all products.
 
 ---
 
@@ -623,6 +686,8 @@ Content-Type: application/json
   "finalQuantity": 5
 }
 ```
+
+> `finalQuantity` reflects the absolute quantity value set by the request.
 
 ---
 
@@ -676,7 +741,7 @@ Content-Type: application/json
 **Request Body:**
 ```json
 {
-  "deliveryPincode": "411001",
+  "deliveryPincode": "100001",
   "product": {
     "productId": "P-a4b231",
     "quantity": 1
@@ -686,17 +751,20 @@ Content-Type: application/json
 
 > `product` is optional. If omitted, the order is placed for all items currently in the buyer's cart. `deliveryPincode` must be a 6-digit number. `productId` must follow the format `P-XXXXXX` (hex). `quantity` minimum is 1.
 
+> **Note:** Delivery is currently only supported for the following pincodes: `100001`, `100002`, `100003`. Any other pincode will return a `422` with reason `notDeliverable`. This is a deliberate scope limitation.
+
 **Response (200 OK):**
 ```json
 {
   "orderId": "OD-7c4e1a",
-  "expDeliveryDate": "2024-09-15",
+  "expDeliveryDate": "2026-09-11",
   "totalOrderValue": 5299,
   "orderStatus": "confirmed",
-  "transactionId": "TXN-789456",
-  "paymentStatus": "successful",
+  "transactionId": "PAY-3f1a2b4c",
+  "paymentStatus": "success",
   "listOfItems": [
     {
+      "orderItemId": "OI-3a1b2c",
       "productId": "P-a4b231",
       "productName": "Wireless Headphones",
       "quantity": 1,
@@ -705,6 +773,8 @@ Content-Type: application/json
   ]
 }
 ```
+
+> `orderStatus` can be `confirmed` or `pending` depending on the mock payment gateway response. `paymentStatus` can be `success`, `failure`, or `pending` — the mock payment gateway uses round-robin to simulate these outcomes. `expDeliveryDate` is computed by adding the delivery period to the current date.
 
 **Error Responses:**
 - `401 Unauthorized` — Invalid JWT token
@@ -727,14 +797,14 @@ Authorization: Bearer <jwt-token>
   {
     "orderId": "OD-7c4e1a",
     "orderStatus": "confirmed",
-    "expDeliveryDate": "2024-09-15",
-    "paymentStatus": "successful",
+    "expDeliveryDate": "2026-09-11",
+    "paymentStatus": "success",
     "totalOrderValue": 5299,
-    "transactionId": "TXN-789456",
-    "deliveryPincode": "411001",
+    "transactionId": "PAY-3f1a2b4c",
+    "deliveryPincode": "100001",
     "items": [
       {
-        "orderItemId": "OD-b1d4f3",
+        "orderItemId": "OI-3a1b2c",
         "productId": "P-a4b231",
         "productName": "Wireless Headphones",
         "quantity": 1,
@@ -744,6 +814,8 @@ Authorization: Bearer <jwt-token>
   }
 ]
 ```
+
+> The Exp API maps only `orderId`, `orderStatus`, `expDeliveryDate`, `paymentStatus`, `totalOrderValue`, `transactionId`, `deliveryPincode`, and `items`. `orderDate` and `userId` are not included. `productName` is appended by the Process API.
 
 ---
 
@@ -764,7 +836,7 @@ Authorization: Bearer <jwt-token>
     "accountHolderName": "John Doe",
     "orderItems": [
       {
-        "orderItemsId": "OD-b1d4f3",
+        "orderItemsId": "OI-3a1b2c",
         "productId": "P-a4b231",
         "productName": "Wireless Headphones",
         "quantity": 1,
@@ -774,6 +846,8 @@ Authorization: Bearer <jwt-token>
   }
 ]
 ```
+
+> The Exp API maps only `storeName`, `storeId`, `accountHolderName`, and `orderItems` from the full store object. `productName` is appended by the Process API.
 
 ---
 
@@ -789,22 +863,26 @@ Authorization: Bearer <jwt-token>
 ```json
 {
   "orderId": "OD-7c4e1a",
+  "orderDate": "2026-09-07",
   "orderStatus": "confirmed",
-  "expDeliveryDate": "2024-09-15",
-  "paymentStatus": "successful",
   "totalOrderValue": 5299,
-  "transactionId": "TXN-789456",
-  "deliveryPincode": "411001",
+  "deliveryPincode": "100001",
+  "expDeliveryDate": "2026-09-11",
+  "transactionId": "PAY-3f1a2b4c",
+  "paymentStatus": "success",
   "orderItems": [
     {
+      "orderItemId": "OI-3a1b2c",
+      "orderId": "OD-7c4e1a",
       "productId": "P-a4b231",
-      "productName": "Wireless Headphones",
       "quantity": 1,
       "priceAtPurchase": 5299
     }
   ]
 }
 ```
+
+> `userId` is stripped from the order and `storeId` is stripped from each order item at the Experience API layer.
 
 ---
 
@@ -859,6 +937,8 @@ Content-Type: application/json
 **Error Responses:**
 - `403 Forbidden` — Admin already registered
 
+> **Note:** This endpoint is protected by a Basic Authentication policy enforced at the API Manager level when deployed on CloudHub. No auth header is required when running locally. Basic Auth was chosen deliberately to keep the setup simple — the recommended approach would be Client ID enforcement via API Manager, but that requires a separate connected app and credential request flow.
+
 ---
 
 ## Error Handling
@@ -868,7 +948,6 @@ The API returns standardized error responses with appropriate HTTP status codes:
 | Status Code | Description |
 |---|---|
 | `200 OK` | Successful request |
-| `201 Created` | Resource created successfully |
 | `400 Bad Request` | Invalid request format or missing required fields |
 | `401 Unauthorized` | Missing or invalid JWT token |
 | `403 Forbidden` | User lacks required role for this operation |
@@ -884,8 +963,7 @@ The API returns standardized error responses with appropriate HTTP status codes:
 **Error Response Format:**
 ```json
 {
-  "message": "Descriptive error message",
-  "details": "Additional context (if applicable)"
+  "message": "Descriptive error message"
 }
 ```
 
@@ -904,8 +982,10 @@ The Experience API enforces role-based access control on secured endpoints:
 **Anonymous** (no JWT required):
 - User registration
 - User login
-- Admin setup
-- Browse product catalog (GET `/exp/products`)
+- Admin setup (protected by Basic Auth policy on CloudHub — no auth needed for local deployment)
+- Browse product catalog (`GET /exp/products`)
+- `GET /exp/products/{productId}`
+- `GET /exp/stores/{storeId}/products`
 
 ---
 
@@ -918,8 +998,6 @@ http://<host>:<http.port>/console/
 ```
 
 You can explore all endpoints, view schemas, and test API calls interactively from the console.
-
----
 
 ---
 
@@ -959,6 +1037,10 @@ Use Postman or the built-in API Console (available at `/console/` after deployme
 - **Error:** "Please provide valid JWT token"
 - **Solution:** Call the login endpoint again to obtain a fresh token
 
+### Order Not Deliverable
+- **Error:** "order cannot be delivered at this pincode"
+- **Solution:** Use one of the supported delivery pincodes: `100001`, `100002`, or `100003`
+
 ### Store Verification Required
 - **Error:** "Your store is not verified yet"
 - **Solution:** Admin must verify the store via `PATCH /exp/stores/{storeId}/verification`
@@ -977,7 +1059,7 @@ Use Postman or the built-in API Console (available at `/console/` after deployme
 
 - **RAML Specification:** `ecommercesuiteexperienceapi2.raml`
 - **API Console:** Available at `/console/` path after deployment
-- **Main Project Repository:** [Link to root repository] — Contains overall architecture, deployment guide, and project scope
+- **Main Project Repository:** [ecommerce_suite](https://github.com/Anurag180259/ecommerce_suite) — Contains overall architecture, deployment guide, and project scope
 
 ---
 
