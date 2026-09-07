@@ -89,10 +89,10 @@ The project will automatically build and deploy to the embedded Mule Runtime.
 Once deployed, the API will be running. Access the API Console:
 
 ```
-http://localhost:8081/console/
+http://localhost:<port>/console/
 ```
 
-Replace `8081` with your configured `http.port` value.
+Replace `<port>` with your configured `http.port` value.
 
 ---
 
