@@ -960,13 +960,6 @@ The API returns standardized error responses with appropriate HTTP status codes:
 | `500 Internal Server Error` | Unexpected server error |
 | `501 Not Implemented` | Feature not yet implemented |
 
-**Error Response Format:**
-```json
-{
-  "message": "Descriptive error message"
-}
-```
-
 ---
 
 ## Role-Based Access Control
