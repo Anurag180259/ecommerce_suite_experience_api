@@ -51,7 +51,6 @@ For the complete system architecture, deployment topology, and AI integration de
   - HTTP Connector
   - APIKit
 - **Process API**: Must be running and accessible at the configured host and port
-- **IDE**: Anypoint Studio/Anypoint Code Builder(Visual Studio Code Extension)
 
 ---
 
@@ -60,8 +59,8 @@ For the complete system architecture, deployment topology, and AI integration de
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/Anurag180259/ecommerce_suite_experience_api.git
-cd ecommerce_suite_experience_api
+git clone <repository-url>
+cd ecommerce-integration-suite-exp-api
 ```
 
 ### 2. Configure Properties
@@ -961,6 +960,13 @@ The API returns standardized error responses with appropriate HTTP status codes:
 | `500 Internal Server Error` | Unexpected server error |
 | `501 Not Implemented` | Feature not yet implemented |
 
+**Error Response Format:**
+```json
+{
+  "message": "Descriptive error message"
+}
+```
+
 ---
 
 ## Role-Based Access Control
@@ -1016,6 +1022,47 @@ Use Postman or the built-in API Console (available at `/console/` after deployme
 
 ---
 
+## MUnit Tests
+
+The Experience API includes MUnit tests covering happy path and error scenarios for all major flows. Tests mock the Process API layer using MUnit's `mock-when` to isolate the Experience API logic.
+
+**Flows covered:**
+
+**Auth**
+- Happy Path: login, register
+- Error Scenarios: login (email not found, password mismatch), register (duplicate email)
+
+**Admin**
+- Happy Path: setup
+- Error Scenarios: setup (admin already registered)
+
+**Stores**
+- Happy Path: create store, verify store, get stores by verification status (admin), get stores for seller
+- Error Scenarios: create store (no JWT, wrong role, duplicate store name)
+
+**Products**
+- Happy Path: add product, get products by filters, get product by ID, get products by store, update product, restock product, delete product
+- Error Scenarios: add product (store unverified, not allowed)
+
+**Cart**
+- Happy Path: add to cart, get cart, update cart item quantity, remove cart item, clear cart
+- Error Scenarios: covered by global error handler tests
+
+**Orders**
+- Happy Path: place order, get orders for buyer, get orders for seller, get order by ID, cancel order
+- Error Scenarios: place order (not in stock, payment failed, not deliverable, empty cart, product not found, no JWT, wrong role)
+
+**Global Error Handler**
+- Error Scenarios: no JWT token, wrong role, ownership check failure, resource not found
+
+**Running the tests in Anypoint Studio:**
+
+1. Right-click on the project in **Package Explorer**
+2. Select **Run As** → **MUnit Test**
+3. Results appear in the **MUnit** tab
+
+---
+
 ## Deployment
 
 1. Right-click on the project in **Package Explorer**
@@ -1051,7 +1098,7 @@ Use Postman or the built-in API Console (available at `/console/` after deployme
 
 ## Related Documentation
 
-- **RAML Specification:** [`ecommercesuiteexperienceapi2.raml`](./src/main/resources/api)
+- **RAML Specification:** `ecommercesuiteexperienceapi2.raml`
 - **API Console:** Available at `/console/` path after deployment
 - **Main Project Repository:** [ecommerce_suite](https://github.com/Anurag180259/ecommerce_suite) — Contains overall architecture, deployment guide, and project scope
 
