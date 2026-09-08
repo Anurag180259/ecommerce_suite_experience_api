@@ -1098,7 +1098,7 @@ The Experience API includes MUnit tests covering happy path and error scenarios 
 
 ## Related Documentation
 
-- **RAML Specification:** `ecommercesuiteexperienceapi2.raml`
+- **RAML Specification:** [`ecommercesuiteexperienceapi2.raml`](./src/main/resources/api)
 - **API Console:** Available at `/console/` path after deployment
 - **Main Project Repository:** [ecommerce_suite](https://github.com/Anurag180259/ecommerce_suite) — Contains overall architecture, deployment guide, and project scope
 
