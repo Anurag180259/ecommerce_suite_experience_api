@@ -59,8 +59,8 @@ For the complete system architecture, deployment topology, and AI integration de
 ### 1. Clone the Repository
 
 ```bash
-git clone <repository-url>
-cd ecommerce-integration-suite-exp-api
+git clone https://github.com/Anurag180259/ecommerce_suite_experience_api.git
+cd ecommerce_suite_experience_api
 ```
 
 ### 2. Configure Properties
