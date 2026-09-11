@@ -1022,47 +1022,6 @@ Use Postman or the built-in API Console (available at `/console/` after deployme
 
 ---
 
-## MUnit Tests
-
-The Experience API includes MUnit tests covering happy path and error scenarios for all major flows. Tests mock the Process API layer using MUnit's `mock-when` to isolate the Experience API logic.
-
-**Flows covered:**
-
-**Auth**
-- Happy Path: login, register
-- Error Scenarios: login (email not found, password mismatch), register (duplicate email)
-
-**Admin**
-- Happy Path: setup
-- Error Scenarios: setup (admin already registered)
-
-**Stores**
-- Happy Path: create store, verify store, get stores by verification status (admin), get stores for seller
-- Error Scenarios: create store (no JWT, wrong role, duplicate store name)
-
-**Products**
-- Happy Path: add product, get products by filters, get product by ID, get products by store, update product, restock product, delete product
-- Error Scenarios: add product (store unverified, not allowed)
-
-**Cart**
-- Happy Path: add to cart, get cart, update cart item quantity, remove cart item, clear cart
-- Error Scenarios: covered by global error handler tests
-
-**Orders**
-- Happy Path: place order, get orders for buyer, get orders for seller, get order by ID, cancel order
-- Error Scenarios: place order (not in stock, payment failed, not deliverable, empty cart, product not found, no JWT, wrong role)
-
-**Global Error Handler**
-- Error Scenarios: no JWT token, wrong role, ownership check failure, resource not found
-
-**Running the tests in Anypoint Studio:**
-
-1. Right-click on the project in **Package Explorer**
-2. Select **Run As** → **MUnit Test**
-3. Results appear in the **MUnit** tab
-
----
-
 ## Deployment
 
 1. Right-click on the project in **Package Explorer**
