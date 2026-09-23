@@ -168,7 +168,6 @@ Authorization: Bearer <your-jwt-token>
 | `GET` | `/exp/products/{productId}` | No | — | Get a single product by ID |
 | `PATCH` | `/exp/products/{productId}` | Yes | Seller | Update product details |
 | `PATCH` | `/exp/products/{productId}/restock` | Yes | Seller | Update product stock quantity |
-| `DELETE` | `/exp/products/{productId}` | Yes | Seller | Delete a product |
 | `POST` | `/exp/carts` | Yes | Buyer | Add a product to cart |
 | `GET` | `/exp/carts` | Yes | Buyer | Get all items in the cart |
 | `PATCH` | `/exp/carts/{cartItemId}/quantity` | Yes | Buyer | Update quantity of a cart item |
@@ -569,23 +568,6 @@ Content-Type: application/json
 ```json
 {
   "Message": "Successfully updated stock"
-}
-```
-
----
-
-#### Delete Product
-```
-DELETE /exp/products/{productId}
-Authorization: Bearer <jwt-token>
-```
-
-**Required Role:** `seller`
-
-**Response (200 OK):**
-```json
-{
-  "message": "Product successfully deleted."
 }
 ```
 
