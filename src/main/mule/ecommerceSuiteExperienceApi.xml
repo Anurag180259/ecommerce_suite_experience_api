@@ -2,7 +2,7 @@
 <mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
     <apikit:config name="ecommerceSuiteExperienceApi-config" api="ecommercesuiteexperienceapi2.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
     <http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="6e7c2511-ac89-4259-b1fd-07084090d004" basePath="/process">
-        <http:request-connection host="${http.request.host}" port="${http.request.port}" />
+        <http:request-connection host="${http.request.host}" port="${http.request.port}"/>
     </http:request-config>
     <configuration-properties doc:name="Configuration properties" doc:id="db06031c-b6b3-4bbf-a6a2-75bdc25f4bd0" file="configuration.properties" />
     <configuration doc:name="Configuration" doc:id="132b9289-336b-4194-93ba-3b281f855650" defaultErrorHandler-ref="globalErrorHandlerError_Handler" />
@@ -155,7 +155,7 @@ output application/json
         </error-handler>
     </flow>
     <flow name="post:\auth\register:application\json:ecommerceSuiteExperienceApi-config">
-        <logger level="INFO" doc:name="Logger" doc:id="6f8c157e-7e29-4cf3-b98c-e8196d92919c" message="Registration request received. Calling process api..." />
+        <logger level="INFO" doc:name="Logger" doc:id="6f8c157e-7e29-4cf3-b98c-e8196d92919c" message='#["Registration request received. Calling process api..."]' />
         <http:request method="POST" doc:name="/process/auth/register" doc:id="29839bcd-b123-4262-9b71-043e9274a994" config-ref="HTTP_Request_configuration" path="/auth/register" />
         <ee:transform doc:name="Transform Message">
             <ee:message>
@@ -188,7 +188,7 @@ output application/json
         </error-handler>
     </flow>
     <flow name="post:\stores:application\json:ecommerceSuiteExperienceApi-config">
-        <logger level="INFO" message="request for adding a store received. calling process api" />
+        <logger level="INFO" message='#["request for adding a store received. calling process api"]' />
         <set-variable value="#[&quot;seller&quot;]" doc:name="allowedRole" doc:id="0858ccaf-8e19-4d9a-82c1-ac7569335a74" variableName="allowedRole" />
         <flow-ref doc:name="jwtExtraction" doc:id="f8db8613-907b-4a80-a4ab-cffe10191900" name="jwtExtraction" />
         <ee:transform doc:name="Transform Message" doc:id="34faab2e-271d-47ef-8ccd-07f21cfd2685">
@@ -325,10 +325,18 @@ output application/json
                 <set-payload value="#[%dw 2.0&#xA;output application/json&#xA;---&#xA;{&#xA; message:&quot;Your store is not verified yet. You are not allowed to add a product&quot;&#xA;}]" doc:name="Set Payload" doc:id="3369ee9b-bb6d-4fe9-877b-32f839c63b1c" />
                 <set-variable value="403" doc:name="httpStatus 40" doc:id="f2c3e057-cc4a-4be5-9036-adf12f78dd42" variableName="httpStatus" />
             </on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propogate1" doc:id="e1044548-c053-4185-ba18-d0bf2e667502" type="APP:UNAUTHORIZED">
+				<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10; message:"Please provide a valida JWT token"&#10;}]' doc:name="Set Payload" doc:id="8474e90f-9396-4b7b-858f-30d1f02f3c53" />
+				<set-variable value="401" doc:name="httpStatus 4" doc:id="041913ca-01bf-45ca-bceb-3f59138b2fde" variableName="httpStatus" />
+			</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propogate2" doc:id="3e956db8-9ab5-41d8-9c4e-fc9fb5519cb2" type="APP:FORBIDDEN">
+				<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10; message:"You are not allowed to access this resource"&#10;}]' doc:name="Set Payload" doc:id="5830b443-b007-4b0a-b859-fd7b04380423" />
+				<set-variable value="403" doc:name="httpStatus 4" doc:id="5850b3d4-2668-46a3-8ad3-97a543b1dd66" variableName="httpStatus" />
+			</on-error-propagate>
         </error-handler>
     </flow>
     <flow name="get:\products:ecommerceSuiteExperienceApi-config">
-        <logger level="INFO" message="Request to get the products by filters received. calling process API" />
+        <logger level="INFO" message='#["Request to get the products by filters received. calling process API"]' />
         <http:request method="GET" doc:name="GET/products" doc:id="ef62a44f-7ce5-40d3-a7f5-2f80b3346cb8" config-ref="HTTP_Request_configuration" path="/products">
             <http:query-params><![CDATA[#[output application/java
 ---
@@ -349,17 +357,16 @@ output application/json
 var a =payload map{
 	"storeName": $.storeName,
         "productName": $.productName,
-        "brand": $.brandName,
+        "brand": $.brand,
         "productId": $.productId,
-        "storeId": "ST-7ef50f",
-        "stock": 23,
-        "price": 5300,
-        "category": "Clothes",
-        "subCategory": "Saree",
-        "rating": 0,
-        "noOfReviews": 0,
-        "details": "This is an Ethnic saree. Great for festive season and traditional functions",
-        stockStatus: if($.stock>0) "inStock" else "notInStock"
+        "storeId": $.storeId,
+        "price": $.price,
+        "category": $.category,
+        "subCategory": $.subCategory,
+        "rating": $.rating,
+        "noOfReviews": $.noOfReviews,
+        "details": $.details,
+        "stockStatus": if($.stock>0) "inStock" else "notInStock"
 }groupBy $.stockStatus
 output application/json
 ---
@@ -368,9 +375,7 @@ output application/json
 	inStockCount:sizeOf(a.inStock),
 	notInStockCount:sizeOf(a.notInStock),
 	avgPrice:sum(payload.price)/sizeOf(payload) default null,
-	products:a mapObject(value, key)->{
-		(key):value map((item) -> item - ("stockStatus"))
-	}
+	products:a
 }]]></ee:set-payload>
             </ee:message>
         </ee:transform>
@@ -523,7 +528,7 @@ output application/json
 	"productId" : attributes.uriParams.productId
 }]]]></http:uri-params>
         </http:request>
-        <choice doc:name="Choice" doc:id="c042f2f7-5d59-45d1-b6ba-0363a93f7b6c">
+		<choice doc:name="Choice" doc:id="c042f2f7-5d59-45d1-b6ba-0363a93f7b6c">
             <when expression="#[payload.affectedRows == 0]">
                 <ee:transform doc:name="Transform Message" doc:id="207cb128-03fa-4603-9b75-72b350bd0f04">
                     <ee:message>
@@ -569,7 +574,7 @@ output application/json
 	"productId" : attributes.uriParams.productId
 }]]]></http:uri-params>
         </http:request>
-        <choice doc:name="Choice" doc:id="1b34a882-b79d-4e48-b2cf-e5f6330574e1">
+		<choice doc:name="Choice" doc:id="1b34a882-b79d-4e48-b2cf-e5f6330574e1">
             <when expression="#[payload.affectedRows == 0]">
                 <ee:transform doc:name="Transform Message" doc:id="66ac1f26-4395-4fec-9850-b416c8f06fb8">
                     <ee:message>
@@ -686,7 +691,8 @@ var mappedProducts=payload.productDetails map (prod) -> do{
     </flow>
     <flow name="post:\carts:application\json:ecommerceSuiteExperienceApi-config">
         <logger level="INFO" message="#[&quot;Request received to add product to cart. calling process api&quot;]" />
-        <set-variable value="#[&quot;Buyer&quot;]" doc:name="allowedRole" doc:id="bc46c7bb-abeb-4952-8c37-8d0d935c9316" variableName="allowedRole" />
+        <set-variable value="#[payload]" doc:name="initialPayload" doc:id="4f1f6904-49d0-4dcf-8c5a-3788b4fe5d70" variableName="initialPayload"/>
+		<set-variable value="#[&quot;Buyer&quot;]" doc:name="allowedRole" doc:id="bc46c7bb-abeb-4952-8c37-8d0d935c9316" variableName="allowedRole" />
         <flow-ref doc:name="jwtExtraction" doc:id="a507f444-da3a-44af-b32c-64f079f34da6" name="jwtExtraction" />
         <http:request method="POST" doc:name="POST/process/carts" doc:id="a08936af-343f-4269-9409-68d29217a296" config-ref="HTTP_Request_configuration" path="/carts">
             <http:headers><![CDATA[#[output application/java
@@ -704,7 +710,8 @@ output application/json
 ---
 {
 	message:"Quantity of the product updated",
-	cartItemId:payload.cartItemId[0]
+	cartItemId:payload.cartItemId[0],
+	finalQuantity:vars.initialPayload.quantity
 }]]></ee:set-payload>
                     </ee:message>
                 </ee:transform>
@@ -984,7 +991,21 @@ payload map{
 	"orderId" : attributes.uriParams.orderId
 }]]]></http:uri-params>
         </http:request>
-        <ee:transform doc:name="Transform Message" doc:id="515d7f48-cfd3-4912-93ba-5beb69ad3d88">
+        <choice doc:name="Choice" doc:id="652bf290-9021-4a35-9750-05aa2c773d5e" >
+			<when expression='#[payload.message == "Order was already cancelled"]'>
+				<ee:transform doc:name="Transform Message" doc:id="e658cd75-9d0c-4d55-9cb7-e3255d9f5540" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message":"Order was already cancelled"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="515d7f48-cfd3-4912-93ba-5beb69ad3d88">
             <ee:message>
                 <ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -995,6 +1016,8 @@ output application/json
 }]]></ee:set-payload>
             </ee:message>
         </ee:transform>
+			</otherwise>
+		</choice>
     </flow>
     <flow name="get:\orders\(orderId):ecommerceSuiteExperienceApi-config">
         <logger level="INFO" message="#[&quot;Request received to fetch orders by orderId:&quot; ++ attributes.uriParams.orderId]" />
@@ -1023,48 +1046,48 @@ payload - ("userId") - ("orderItems") ++ {orderItems: payload.orderItems map(ite
         </ee:transform>
     </flow>
     <flow name="get:\stores\admin:ecommerceSuiteExperienceApi-config">
-        <logger level="INFO" message='#["Request received to get stores list with verification status:" ++ attributes.queryParams.verificationStatus]' />
-		<set-variable value="#[attributes.queryParams.verificationStatus]" doc:name="verificationStatus" doc:id="c3d02133-2fc1-4d7c-96c7-bb49f9cfe918" variableName="status"/>
-		<set-variable value='#["admin"]' doc:name="allowedRole" doc:id="e791b723-1703-41d9-bb49-f4f3c1dac6b1" variableName="allowedRole"/>
-		<flow-ref doc:name="jwtExtraction" doc:id="9b67d250-3ed7-4ca1-ab20-bba8c8d576c9" name="jwtExtraction" />
-		<http:request method="GET" doc:name="GET/stores/admin" doc:id="afa95b70-0aeb-43f7-827e-84c4eda014cd" config-ref="HTTP_Request_configuration" path="/stores/admin">
-			<http:body ><![CDATA[#[null]]]></http:body>
-			<http:query-params ><![CDATA[#[output application/java
+        <logger level="INFO" message="#[&quot;Request received to get stores list with verification status:&quot; ++ attributes.queryParams.verificationStatus]" />
+        <set-variable value="#[attributes.queryParams.verificationStatus]" doc:name="verificationStatus" doc:id="c3d02133-2fc1-4d7c-96c7-bb49f9cfe918" variableName="status" />
+        <set-variable value="#[&quot;admin&quot;]" doc:name="allowedRole" doc:id="e791b723-1703-41d9-bb49-f4f3c1dac6b1" variableName="allowedRole" />
+        <flow-ref doc:name="jwtExtraction" doc:id="9b67d250-3ed7-4ca1-ab20-bba8c8d576c9" name="jwtExtraction" />
+        <http:request method="GET" doc:name="GET/stores/admin" doc:id="afa95b70-0aeb-43f7-827e-84c4eda014cd" config-ref="HTTP_Request_configuration" path="/stores/admin">
+            <http:body><![CDATA[#[null]]]></http:body>
+            <http:query-params><![CDATA[#[output application/java
 ---
 {
 	"verificationStatus" : attributes.queryParams.verificationStatus
 }]]]></http:query-params>
-		</http:request>
-		<ee:transform doc:name="Transform Message" doc:id="6c777fa9-46bb-4ee6-a570-eae213eda089" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
+        </http:request>
+        <ee:transform doc:name="Transform Message" doc:id="6c777fa9-46bb-4ee6-a570-eae213eda089">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {
 	(vars.status) : payload map ($- "verificationStatus")
 }]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
+            </ee:message>
+        </ee:transform>
     </flow>
     <flow name="get:\stores\seller:ecommerceSuiteExperienceApi-config">
-        <logger level="INFO" message='#["Getting all the stores list for a seller by seller Id"]' />
-		<set-variable value='#["seller"]' doc:name="allowedRole" doc:id="61527696-fdad-4940-a8ae-bc8152b98441" variableName="allowedRole"/>
-		<flow-ref doc:name="jwtExtraction" doc:id="031749c4-ee74-400c-a70c-8271471777b1" name="jwtExtraction"/>
-		<http:request method="GET" doc:name="GET/process/stores/seller" doc:id="c05b8c14-4bba-46a9-a352-bce46b1228d8" config-ref="HTTP_Request_configuration" path="/stores/seller">
-			<http:body ><![CDATA[#[null]]]></http:body>
-			<http:headers ><![CDATA[#[output application/java
+        <logger level="INFO" message="#[&quot;Getting all the stores list for a seller by seller Id&quot;]" />
+        <set-variable value="#[&quot;seller&quot;]" doc:name="allowedRole" doc:id="61527696-fdad-4940-a8ae-bc8152b98441" variableName="allowedRole" />
+        <flow-ref doc:name="jwtExtraction" doc:id="031749c4-ee74-400c-a70c-8271471777b1" name="jwtExtraction" />
+        <http:request method="GET" doc:name="GET/process/stores/seller" doc:id="c05b8c14-4bba-46a9-a352-bce46b1228d8" config-ref="HTTP_Request_configuration" path="/stores/seller">
+            <http:body><![CDATA[#[null]]]></http:body>
+            <http:headers><![CDATA[#[output application/java
 ---
 {
 	"x-user-id" : vars.jwtClaims.userId
 }]]]></http:headers>
-		</http:request>
-		<ee:transform doc:name="Transform Message" doc:id="2415f42a-ffda-4424-b3ab-bbb1d79e59bb" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
+        </http:request>
+        <ee:transform doc:name="Transform Message" doc:id="2415f42a-ffda-4424-b3ab-bbb1d79e59bb">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 payload]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
+            </ee:message>
+        </ee:transform>
     </flow>
 </mule>
